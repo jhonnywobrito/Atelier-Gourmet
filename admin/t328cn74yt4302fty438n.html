@@ -5,7 +5,7 @@
       const usuarioLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
       if (!usuarioLogado || usuarioLogado.role !== 'ADMIN') {
         alert('Acesso negado! Área restrita.')
-        window.location.href = '../index.html'
+        window.location.href = '../'
       }
     </script>
     <meta charset="UTF-8" />
