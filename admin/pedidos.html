@@ -106,7 +106,7 @@
     <div id="listaPedidos">Carregando pedidos...</div>
 
     <script>
-      const BASE_URL = 'https://ateliergourmet.duckdns.org'
+            const BASE_URL = 'https://ateliergourmet.duckdns.org'
       const API_URL = `${BASE_URL}/pedidos`
 
       let alertasAtivos = false
@@ -114,17 +114,16 @@
       let primeiraCarga = true
       let todosPedidosGlobal = []
       let timerTempoDecorrido = null
-      let adminContatoGlobal = '' // Adicionado para puxar o WhatsApp da loja
+      let adminContatoGlobal = '' 
       const somNovoPedido = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg')
 
-      // Busca as configurações da loja assim que a página abre para ter o número do WhatsApp
       fetch(`${BASE_URL}/usuarios/loja`)
         .then(res => res.json())
         .then(data => { adminContatoGlobal = data.whatsapp || "Não cadastrado"; })
-        .catch(err => console.log("Erro ao buscar whatsapp da loja"));
+        .catch(err => console.log("Erro ao buscar whatsapp"));
 
-            // ==========================================
-      // FUNÇÃO INTELIGENTE DE IMPRESSÃO (PC E MOBILE) - COM CORREÇÕES
+      // ==========================================
+      // FUNÇÃO INTELIGENTE DE IMPRESSÃO (CORRIGIDA)
       // ==========================================
       function imprimirPedido(id) {
         const p = todosPedidosGlobal.find(ped => ped.id === id);
@@ -134,7 +133,7 @@
         const lojaTel = adminContatoGlobal || "Telefone não cadastrado";
 
         if (isMobile) {
-          // --- LÓGICA DO CELULAR (Aplicativo RawBT) ---
+          // --- CELULAR (RawBT) ---
           let recibo = "[C]<b>BIA OLIVEIRA</b>\n";
           recibo += "[C]<b>ATELIER GOURMET</b>\n";
           recibo += `[C]WhatsApp: ${lojaTel}\n`;
@@ -153,7 +152,7 @@
           window.location.href = `intent:${textoCodificado}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
 
         } else {
-          // --- LÓGICA DO COMPUTADOR (Impressão do Windows/Navegador) ---
+          // --- COMPUTADOR (Google Chrome) ---
           let iframe = document.getElementById('frameImpressao');
           if (!iframe) {
               iframe = document.createElement('iframe');
@@ -162,7 +161,7 @@
               document.body.appendChild(iframe);
           }
 
-          // CSS Corrigido para 48mm (Área útil) e Fontes menores
+          // Ajustes: 58mm totais, margens corrigidas e quebra de palavras longas
           const htmlCupom = `
               <!DOCTYPE html>
               <html>
@@ -170,19 +169,24 @@
                   <style>
                       @page { margin: 0; size: 58mm auto; }
                       body { 
-                          font-family: 'Courier New', Courier, monospace; 
-                          width: 48mm; /* Área segura que não corta */
-                          margin: 0 auto; 
-                          padding: 2mm 0; 
+                          font-family: Arial, Helvetica, sans-serif; 
+                          width: 54mm; /* Largura total menos as margens */
+                          margin: 0; 
+                          padding: 2mm; 
                           color: #000;
-                          font-size: 11px; /* Fonte levemente menor para caber melhor */
+                          font-size: 11px; 
                       }
                       h3 { margin: 0; text-align: center; font-size: 14px; }
                       .centro { text-align: center; }
-                      .linha { border-top: 1px dashed #000; margin: 4px 0; }
+                      .linha { border-top: 1px solid #000; margin: 6px 0; }
                       .bold { font-weight: bold; }
                       .direita { text-align: right; font-size: 12px; }
                       p { margin: 2px 0; }
+                      .resumo-itens {
+                          white-space: pre-wrap; 
+                          font-size: 11px; 
+                          word-break: break-word; /* Quebra palavras muito compridas */
+                      }
                   </style>
               </head>
               <body>
@@ -190,14 +194,21 @@
                   <h3>ATELIER GOURMET</h3>
                   <p class="centro" style="font-size: 10px; margin-bottom: 5px;">WhatsApp: ${lojaTel}</p>
                   <p class="centro bold">PEDIDO #${p.id}</p>
+                  
                   <div class="linha"></div>
+                  
                   <p><span class="bold">Cliente:</span> ${p.clienteNome}</p>
                   <p><span class="bold">WhatsApp:</span> ${p.clienteWhatsapp}</p>
                   <p><span class="bold">End.:</span> ${p.endereco}</p>
+                  
                   <div class="linha"></div>
-                  <div style="white-space: pre-wrap; font-size: 11px; word-wrap: break-word;">${p.itensResumo.trim()}</div>
+                  
+                  <div class="resumo-itens">${p.itensResumo.trim()}</div>
+                  
                   <div class="linha"></div>
+                  
                   <p class="direita bold">TOTAL: R$ ${p.total.toFixed(2).replace('.', ',')}</p>
+                  
                   <br><br><br>
               </body>
               </html>
@@ -217,7 +228,6 @@
         setTimeout(carregarPedidos, 3000);
       }
 
-      
       function normalizarDataPedido(valor) {
         if (!valor) return null
         if (Array.isArray(valor)) {
