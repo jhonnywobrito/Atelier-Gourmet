@@ -123,8 +123,8 @@
         .then(data => { adminContatoGlobal = data.whatsapp || "Não cadastrado"; })
         .catch(err => console.log("Erro ao buscar whatsapp da loja"));
 
-      // ==========================================
-      // FUNÇÃO INTELIGENTE DE IMPRESSÃO (PC E MOBILE)
+            // ==========================================
+      // FUNÇÃO INTELIGENTE DE IMPRESSÃO (PC E MOBILE) - COM CORREÇÕES
       // ==========================================
       function imprimirPedido(id) {
         const p = todosPedidosGlobal.find(ped => ped.id === id);
@@ -135,11 +135,11 @@
 
         if (isMobile) {
           // --- LÓGICA DO CELULAR (Aplicativo RawBT) ---
-          let recibo = "[C]<b>Bia Oliveira</b>\n";
-          recibo += `[C]ATELIER GOURMET\n`;
+          let recibo = "[C]<b>BIA OLIVEIRA</b>\n";
+          recibo += "[C]<b>ATELIER GOURMET</b>\n";
           recibo += `[C]WhatsApp: ${lojaTel}\n`;
           recibo += `[C]<b>PEDIDO #${p.id}</b>\n`;
-          recibo += "[C]--------------------------\n";
+          recibo += "[C]--------------------------\n"; 
           recibo += `[L]<b>Cliente:</b> ${p.clienteNome}\n`;
           recibo += `[L]<b>WhatsApp:</b> ${p.clienteWhatsapp}\n`;
           recibo += `[L]<b>Endereço:</b> ${p.endereco}\n`;
@@ -153,6 +153,7 @@
           window.location.href = `intent:${textoCodificado}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
 
         } else {
+          // --- LÓGICA DO COMPUTADOR (Impressão do Windows/Navegador) ---
           let iframe = document.getElementById('frameImpressao');
           if (!iframe) {
               iframe = document.createElement('iframe');
@@ -161,6 +162,7 @@
               document.body.appendChild(iframe);
           }
 
+          // CSS Corrigido para 48mm (Área útil) e Fontes menores
           const htmlCupom = `
               <!DOCTYPE html>
               <html>
@@ -184,6 +186,7 @@
                   </style>
               </head>
               <body>
+                  <h3>BIA OLIVEIRA</h3>
                   <h3>ATELIER GOURMET</h3>
                   <p class="centro" style="font-size: 10px; margin-bottom: 5px;">WhatsApp: ${lojaTel}</p>
                   <p class="centro bold">PEDIDO #${p.id}</p>
@@ -213,6 +216,7 @@
 
         setTimeout(carregarPedidos, 3000);
       }
+
       
       function normalizarDataPedido(valor) {
         if (!valor) return null
