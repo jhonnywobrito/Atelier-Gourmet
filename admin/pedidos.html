@@ -1,429 +1,484 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <script>
-      const usuarioSession = JSON.parse(localStorage.getItem('atelierUsuario'))
-      if (!usuarioSession || usuarioSession.role !== 'ADMIN') {
+
+<head>
+  <script>
+    const usuarioSession = JSON.parse(localStorage.getItem('atelierUsuario'))
+    if (!usuarioSession || usuarioSession.role !== 'ADMIN') {
+      window.location.href = '../index.html'
+    }
+  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Pedidos</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+      color: #333;
+      margin: 0;
+    }
+
+    /* Navegação Superior */
+    .top-nav {
+      margin-bottom: 20px;
+    }
+
+    .btn-voltar {
+      background: #5d4037;
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 0.9em;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+
+    .btn-voltar:hover {
+      background: #4a332c;
+    }
+
+    .header-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .btn-alertas {
+      background: #f39c12;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-alertas:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-alertas.ativo {
+      background: #27ae60;
+    }
+
+    .pedido-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .novo-pedido {
+      border-left: 6px solid #e74c3c;
+      background-color: #fff9f9;
+    }
+
+    .impresso {
+      border-left: 6px solid #bdc3c7;
+      opacity: 0.85;
+    }
+
+    .badge-novo {
+      background: #e74c3c;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: bold;
+      animation: piscar 1.5s infinite;
+    }
+
+    @keyframes piscar {
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .badge-status {
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    .pedido-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pedido-cliente {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #5d4037;
+    }
+
+    .pedido-end {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+    }
+
+    .pedido-tempo {
+      color: #8e44ad;
+      font-size: 0.88em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .pedido-itens {
+      white-space: pre-wrap;
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      border: 1px solid #eee;
+    }
+
+    .pedido-total {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #27ae60;
+      text-align: right;
+    }
+
+    .botoes-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .btn-acao {
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.9em;
+      flex: 1;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .btn-acao:hover {
+      transform: scale(1.03);
+      opacity: 0.9;
+    }
+
+    .btn-preparar {
+      background: #f39c12;
+    }
+
+    .btn-pronto {
+      background: #27ae60;
+    }
+
+    .btn-entrega {
+      background: #3498db;
+    }
+
+    .btn-concluir {
+      background: #8e44ad;
+    }
+
+    .btn-imprimir {
+      background: #7f8c8d;
+    }
+
+    .btn-excluir {
+      background: #e74c3c;
+      flex: 0 1 auto;
+      min-width: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-nav">
+    <a href="t328cn74yt4302fty438n.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+  </div>
+
+  <div class="header-topo">
+    <h2 style="color: #5d4037; margin: 0">🧾 Painel de Pedidos</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap">
+      <button class="btn-acao" style="background: #27ae60; flex: 0 1 auto" onclick="exportarPedidosCSV()">📊 Exportar
+        Excel</button>
+      <button class="btn-acao" style="background: #c0392b; flex: 0 1 auto" onclick="apagarTodosPedidos()">🗑️ Apagar
+        Todos</button>
+      <button id="btnAlertas" class="btn-alertas" onclick="ativarAlertas()">🔕 Ativar Alertas</button>
+    </div>
+  </div>
+
+  <div id="listaPedidos">Carregando pedidos...</div>
+
+  <script>
+    const BASE_URL = 'https://ateliergourmet.duckdns.org'
+    const API_URL = `${BASE_URL}/pedidos`
+
+    let alertasAtivos = false
+    let ultimoIdConhecido = 0
+    let primeiraCarga = true
+    let todosPedidosGlobal = []
+    let timerTempoDecorrido = null
+    const somNovoPedido = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg')
+
+    function imprimirPedido(id) {
+      const p = todosPedidosGlobal.find(ped => ped.id === id);
+      if (!p) return;
+
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        // --- LÓGICA DO CELULAR (Aplicativo RawBT) ---
+        let recibo = "[C]<b>ATELIER GOURMET</b>\n";
+        recibo += `[C]<b>PEDIDO #${p.id}</b>\n`;
+        recibo += "[C]--------------------------------\n";
+        recibo += `[L]<b>Cliente:</b> ${p.clienteNome}\n`;
+        recibo += `[L]<b>WhatsApp:</b> ${p.clienteWhatsapp}\n`;
+        recibo += `[L]<b>Endereço:</b> ${p.endereco}\n`;
+        recibo += "[C]--------------------------------\n";
+        recibo += `[L]${p.itensResumo.trim()}\n`;
+        recibo += "[C]--------------------------------\n";
+        recibo += `[R]<b>TOTAL: R$ ${p.total.toFixed(2).replace('.', ',')}</b>\n`;
+        recibo += "[L]\n[L]\n[L]\n";
+
+        const textoCodificado = encodeURIComponent(recibo);
+        window.location.href = `intent:${textoCodificado}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
+
+      } else {
+        let iframe = document.getElementById('frameImpressao');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.id = 'frameImpressao';
+          iframe.style.display = 'none';
+          document.body.appendChild(iframe);
+        }
+
+        const htmlCupom = `
+              <!DOCTYPE html>
+              <html>
+              <head>
+                  <style>
+                      @page { margin: 0; size: 58mm auto; }
+                      body { 
+                          font-family: 'Courier New', Courier, monospace; 
+                          width: 58mm; 
+                          margin: 0; 
+                          padding: 2mm; 
+                          color: #000;
+                          font-size: 12px;
+                      }
+                      h3 { margin: 0; text-align: center; font-size: 16px; }
+                      .centro { text-align: center; }
+                      .linha { border-top: 1px dashed #000; margin: 5px 0; }
+                      .bold { font-weight: bold; }
+                      .direita { text-align: right; font-size: 14px; }
+                      p { margin: 2px 0; }
+                  </style>
+              </head>
+              <body>
+                  <h3>ATELIER GOURMET</h3>
+                  <p class="centro bold">PEDIDO #${p.id}</p>
+                  <div class="linha"></div>
+                  <p><span class="bold">Cliente:</span> ${p.clienteNome}</p>
+                  <p><span class="bold">WhatsApp:</span> ${p.clienteWhatsapp}</p>
+                  <p><span class="bold">Endereço:</span> ${p.endereco}</p>
+                  <div class="linha"></div>
+                  <div style="white-space: pre-wrap; font-size: 11px;">${p.itensResumo.trim()}</div>
+                  <div class="linha"></div>
+                  <p class="direita bold">TOTAL: R$ ${p.total.toFixed(2).replace('.', ',')}</p>
+                  <br><br><br>
+              </body>
+              </html>
+          `;
+
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(htmlCupom);
+        doc.close();
+
+        setTimeout(() => {
+          iframe.contentWindow.focus();
+          iframe.contentWindow.print();
+        }, 500);
+      }
+
+      setTimeout(carregarPedidos, 3000);
+    }
+
+
+    function normalizarDataPedido(valor) {
+      if (!valor) return null
+      if (Array.isArray(valor)) {
+        return new Date(Date.UTC(valor[0], valor[1] - 1, valor[2], valor[3], valor[4], valor[5])).getTime()
+      }
+      if (typeof valor === 'string') {
+        let dataString = valor.trim()
+        if (!dataString.endsWith('Z') && !dataString.includes('-03:00')) { dataString += 'Z' }
+        const t = Date.parse(dataString)
+        return isNaN(t) ? null : t
+      }
+      if (typeof valor === 'number') return valor < 1000000000000 ? valor * 1000 : valor
+      return null
+    }
+
+    function obterTimestampChegada(pedido) {
+      const candidatos = [pedido.dataPedido, pedido.data_pedido, pedido.dataCriacao, pedido.criadoEm]
+      for (const valor of candidatos) {
+        const timestamp = normalizarDataPedido(valor)
+        if (timestamp) return timestamp
+      }
+      return null
+    }
+
+    function formatarTempoDecorrido(timestampChegada) {
+      if (!timestampChegada) return 'Tempo indisponível'
+      const agora = Date.now()
+      let diffMs = agora - timestampChegada
+      if (diffMs < 0) diffMs = agora + 10800000 - timestampChegada
+      const diffMin = Math.floor(Math.max(0, diffMs) / 60000)
+      if (diffMin <= 0) return 'chegou agora'
+      if (diffMin < 60) return `há ${diffMin} min`
+      const horas = Math.floor(diffMin / 60)
+      const minutos = diffMin % 60
+      if (horas < 24) return `há ${horas}h ${minutos}min`
+      const dias = Math.floor(horas / 24)
+      return `há ${dias}d`
+    }
+
+    function atualizarTemposNosCards() {
+      const tempos = document.querySelectorAll('.pedido-tempo[data-chegada]')
+      tempos.forEach(el => {
+        const valor = Number(el.dataset.chegada)
+        if (!Number.isFinite(valor) || valor <= 0) {
+          el.innerText = '⏱️ Tempo indisponivel'
+          return
+        }
+        el.innerText = `⏱️ ${formatarTempoDecorrido(valor)}`
+      })
+    }
+
+    function iniciarTimerTempoDecorrido() {
+      if (timerTempoDecorrido) return
+      timerTempoDecorrido = setInterval(atualizarTemposNosCards, 30000)
+    }
+
+    function ativarAlertas() {
+      Notification.requestPermission().then(function (p) {
+        if (p === 'granted') {
+          alertasAtivos = true
+          const btn = document.getElementById('btnAlertas')
+          btn.innerText = '🔔 Alertas Ativos'
+          btn.classList.add('ativo')
+          somNovoPedido.play().catch(e => console.log(e))
+        } else alert('Permissão negada.')
+      })
+    }
+
+    async function carregarPedidos() {
+      const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      if (!uLogado || !uLogado.token) {
         window.location.href = '../index.html'
-      }
-    </script>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel de Pedidos</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      body {
-        font-family: 'Segoe UI', sans-serif;
-        padding: 20px;
-        background: #f4f4f4;
-        color: #333;
-        margin: 0;
+        return
       }
 
-      /* Navegação Superior */
-      .top-nav {
-        margin-bottom: 20px;
-      }
-      .btn-voltar {
-        background: #5d4037;
-        color: white;
-        text-decoration: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 0.9em;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.2s;
-      }
-      .btn-voltar:hover {
-        background: #4a332c;
-      }
-
-      .header-topo {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-      .btn-alertas {
-        background: #f39c12;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .btn-alertas:hover {
-        transform: scale(1.05);
-      }
-      .btn-alertas.ativo {
-        background: #27ae60;
-      }
-
-      .pedido-card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        transition: 0.3s;
-      }
-      .novo-pedido {
-        border-left: 6px solid #e74c3c;
-        background-color: #fff9f9;
-      }
-      .impresso {
-        border-left: 6px solid #bdc3c7;
-        opacity: 0.85;
-      }
-
-      .badge-novo {
-        background: #e74c3c;
-        color: white;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.8em;
-        font-weight: bold;
-        animation: piscar 1.5s infinite;
-      }
-      @keyframes piscar {
-        50% {
-          opacity: 0.5;
-        }
-      }
-
-      .badge-status {
-        color: white;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 0.8em;
-        font-weight: bold;
-      }
-      .pedido-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 10px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .pedido-cliente {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #5d4037;
-      }
-      .pedido-end {
-        color: #666;
-        font-size: 0.9em;
-        margin-bottom: 10px;
-      }
-      .pedido-tempo {
-        color: #8e44ad;
-        font-size: 0.88em;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-      .pedido-itens {
-        white-space: pre-wrap;
-        background: #f9f9f9;
-        padding: 10px;
-        border-radius: 5px;
-        font-family: monospace;
-        border: 1px solid #eee;
-      }
-      .pedido-total {
-        font-size: 1.3em;
-        font-weight: bold;
-        margin-top: 10px;
-        color: #27ae60;
-        text-align: right;
-      }
-
-      .botoes-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 15px;
-      }
-      .btn-acao {
-        color: white;
-        padding: 10px 15px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-        font-size: 0.9em;
-        flex: 1;
-        text-align: center;
-        min-width: 120px;
-      }
-      .btn-acao:hover {
-        transform: scale(1.03);
-        opacity: 0.9;
-      }
-      .btn-preparar {
-        background: #f39c12;
-      }
-      .btn-pronto {
-        background: #27ae60;
-      }
-      .btn-entrega {
-        background: #3498db;
-      }
-      .btn-concluir {
-        background: #8e44ad;
-      }
-      .btn-imprimir {
-        background: #7f8c8d;
-      }
-      .btn-excluir {
-        background: #e74c3c;
-        flex: 0 1 auto;
-        min-width: auto;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="top-nav">
-      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"
-        ><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a
-      >
-    </div>
-
-    <div class="header-topo">
-      <h2 style="color: #5d4037; margin: 0">🧾 Painel de Pedidos</h2>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap">
-        <button
-          class="btn-acao"
-          style="background: #27ae60; flex: 0 1 auto"
-          onclick="exportarPedidosCSV()"
-        >
-          📊 Exportar Excel
-        </button>
-        <button
-          class="btn-acao"
-          style="background: #c0392b; flex: 0 1 auto"
-          onclick="apagarTodosPedidos()"
-        >
-          🗑️ Apagar Todos
-        </button>
-        <button id="btnAlertas" class="btn-alertas" onclick="ativarAlertas()">
-          🔕 Ativar Alertas
-        </button>
-      </div>
-    </div>
-
-    <div id="listaPedidos">Carregando pedidos...</div>
-
-    <script>
-      const BASE_URL = 'https://ateliergourmet.duckdns.org'
-      const API_URL = `${BASE_URL}/pedidos`
-
-      let alertasAtivos = false
-      let ultimoIdConhecido = 0
-      let primeiraCarga = true
-      let todosPedidosGlobal = []
-      let timerTempoDecorrido = null
-      const somNovoPedido = new Audio(
-        'https://actions.google.com/sounds/v1/alarms/beep_short.ogg'
-      )
-
-      function normalizarDataPedido(valor) {
-        if (!valor) return null
-        if (Array.isArray(valor)) {
-          return new Date(
-            Date.UTC(
-              valor[0],
-              valor[1] - 1,
-              valor[2],
-              valor[3],
-              valor[4],
-              valor[5]
-            )
-          ).getTime()
-        }
-        if (typeof valor === 'string') {
-          let dataString = valor.trim()
-          if (!dataString.endsWith('Z') && !dataString.includes('-03:00')) {
-            dataString += 'Z'
-          }
-          const t = Date.parse(dataString)
-          return isNaN(t) ? null : t
-        }
-        if (typeof valor === 'number')
-          return valor < 1000000000000 ? valor * 1000 : valor
-        return null
-      }
-
-      function obterTimestampChegada(pedido) {
-        const candidatos = [
-          pedido.dataPedido,
-          pedido.data_pedido,
-          pedido.dataCriacao,
-          pedido.criadoEm
-        ]
-        for (const valor of candidatos) {
-          const timestamp = normalizarDataPedido(valor)
-          if (timestamp) return timestamp
-        }
-        return null
-      }
-
-      function formatarTempoDecorrido(timestampChegada) {
-        if (!timestampChegada) return 'Tempo indisponível'
-        const agora = Date.now()
-        let diffMs = agora - timestampChegada
-        if (diffMs < 0) diffMs = agora + 10800000 - timestampChegada
-        const diffMin = Math.floor(Math.max(0, diffMs) / 60000)
-        if (diffMin <= 0) return 'chegou agora'
-        if (diffMin < 60) return `há ${diffMin} min`
-        const horas = Math.floor(diffMin / 60)
-        const minutos = diffMin % 60
-        if (horas < 24) return `há ${horas}h ${minutos}min`
-        const dias = Math.floor(horas / 24)
-        return `há ${dias}d`
-      }
-
-      function atualizarTemposNosCards() {
-        const tempos = document.querySelectorAll('.pedido-tempo[data-chegada]')
-        tempos.forEach(el => {
-          const valor = Number(el.dataset.chegada)
-          if (!Number.isFinite(valor) || valor <= 0) {
-            el.innerText = '⏱️ Tempo indisponivel'
-            return
-          }
-          el.innerText = `⏱️ ${formatarTempoDecorrido(valor)}`
+      try {
+        const res = await fetch(API_URL, {
+          headers: { Authorization: `Bearer ${uLogado.token}` }
         })
-      }
-
-      function iniciarTimerTempoDecorrido() {
-        if (timerTempoDecorrido) return
-        timerTempoDecorrido = setInterval(atualizarTemposNosCards, 30000)
-      }
-
-      function ativarAlertas() {
-        Notification.requestPermission().then(function (p) {
-          if (p === 'granted') {
-            alertasAtivos = true
-            const btn = document.getElementById('btnAlertas')
-            btn.innerText = '🔔 Alertas Ativos'
-            btn.classList.add('ativo')
-            somNovoPedido.play().catch(e => console.log(e))
-          } else alert('Permissão negada.')
-        })
-      }
-
-      async function carregarPedidos() {
-        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        if (!uLogado || !uLogado.token) {
+        if (res.status === 403 || res.status === 401) {
+          alert('Sessão expirada.')
+          localStorage.removeItem('atelierUsuario')
           window.location.href = '../index.html'
           return
         }
+        if (!res.ok) throw new Error('Falha na API')
 
-        try {
-          const res = await fetch(API_URL, {
-            headers: { Authorization: `Bearer ${uLogado.token}` }
+        const pedidos = await res.json()
+        todosPedidosGlobal = pedidos
+
+        const container = document.getElementById('listaPedidos')
+        if (pedidos.length === 0) {
+          container.innerHTML = '<p>Nenhum pedido registrado.</p>'
+          return
+        }
+        container.innerHTML = ''
+
+        let maiorIdAtual = Math.max(...pedidos.map(p => p.id))
+        if (!primeiraCarga && maiorIdAtual > ultimoIdConhecido && alertasAtivos) {
+          somNovoPedido.play().catch(e => console.log(e))
+          new Notification('Atelier Gourmet', {
+            body: '🚨 NOVO PEDIDO!',
+            icon: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png'
           })
-          if (res.status === 403 || res.status === 401) {
-            alert('Sessão expirada.')
-            localStorage.removeItem('atelierUsuario')
-            window.location.href = '../index.html'
-            return
-          }
-          if (!res.ok) throw new Error('Falha na API')
-
-          const pedidos = await res.json()
-          todosPedidosGlobal = pedidos
-
-          const container = document.getElementById('listaPedidos')
-          if (pedidos.length === 0) {
-            container.innerHTML = '<p>Nenhum pedido registrado.</p>'
-            return
-          }
-          container.innerHTML = ''
-
-          let maiorIdAtual = Math.max(...pedidos.map(p => p.id))
-          if (
-            !primeiraCarga &&
-            maiorIdAtual > ultimoIdConhecido &&
-            alertasAtivos
-          ) {
-            somNovoPedido.play().catch(e => console.log(e))
-            new Notification('Atelier Gourmet', {
-              body: '🚨 NOVO PEDIDO!',
-              icon: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png'
-            })
-          }
-          ultimoIdConhecido = maiorIdAtual
-          primeiraCarga = false
+        }
+        ultimoIdConhecido = maiorIdAtual
+        primeiraCarga = false
 
           ;[...pedidos].reverse().forEach(p => {
-            const urlImpressora = `my.bluetoothprint.scheme://https://ateliergourmet.duckdns.org/pedidos/${p.id}/imprimir`
             const timestampChegada = obterTimestampChegada(p)
             const tempoDecorrido = formatarTempoDecorrido(timestampChegada)
             let status = p.status || 'PENDENTE'
-            let classeCard = 'impresso',
-              badge = '',
-              botoes = ''
+            let classeCard = 'impresso', badge = '', botoes = ''
 
             if (status === 'PENDENTE') {
               classeCard = 'novo-pedido'
               badge = '<span class="badge-novo">🔴 NOVO PEDIDO</span>'
               botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PREPARANDO')">👨‍🍳 Iniciar Preparo</button>`
             } else if (status === 'PREPARANDO') {
-              badge =
-                '<span class="badge-status" style="background:#f39c12">🟡 PREPARANDO</span>'
+              badge = '<span class="badge-status" style="background:#f39c12">🟡 PREPARANDO</span>'
               if (p.endereco.includes('RETIRADA')) {
                 botoes += `<button class="btn-acao btn-pronto" onclick="atualizarStatus(${p.id}, 'PRONTO_RETIRADA')">🛍️ Pronto p/ Coleta</button>`
               } else {
                 botoes += `<button class="btn-acao btn-entrega" onclick="atualizarStatus(${p.id}, 'SAIU_ENTREGA')">🛵 Saiu p/ Entrega</button>`
               }
             } else if (status === 'PRONTO_RETIRADA') {
-              badge =
-                '<span class="badge-status" style="background:#27ae60">🟢 AGUARDANDO RETIRADA</span>'
+              badge = '<span class="badge-status" style="background:#27ae60">🟢 AGUARDANDO RETIRADA</span>'
               botoes += `<button class="btn-acao btn-concluir" onclick="atualizarStatus(${p.id}, 'CONCLUIDO')">✅ Concluir Pedido</button>`
             } else if (status === 'SAIU_ENTREGA') {
-              badge =
-                '<span class="badge-status" style="background:#3498db">🔵 SAIU P/ ENTREGA</span>'
+              badge = '<span class="badge-status" style="background:#3498db">🔵 SAIU P/ ENTREGA</span>'
               botoes += `<button class="btn-acao btn-concluir" onclick="atualizarStatus(${p.id}, 'CONCLUIDO')">✅ Concluir Pedido</button>`
             } else if (status === 'CONCLUIDO') {
-              badge =
-                '<span class="badge-status" style="background:#8e44ad">✅ CONCLUÍDO</span>'
+              badge = '<span class="badge-status" style="background:#8e44ad">✅ CONCLUÍDO</span>'
             }
 
-            botoes += `<a href="${urlImpressora}" class="btn-acao btn-imprimir" onclick="setTimeout(carregarPedidos, 3000)">🖨️ Imprimir</a>`
+            // BOTÃO IMPRIMIR ATUALIZADO
+            botoes += `<button class="btn-acao btn-imprimir" onclick="imprimirPedido(${p.id})">🖨️ Imprimir</button>`
             botoes += `<button class="btn-acao btn-excluir" onclick="excluirPedido(${p.id})">🗑️ Excluir</button>`
 
             container.innerHTML += `
                 <div class="pedido-card ${classeCard}">
                     <div class="pedido-header">
-                        <span class="pedido-cliente">👤 ${p.clienteNome} (${
-              p.clienteWhatsapp
-            })</span>
-                        <div>${badge} <span style="background:#eee; padding:2px 8px; border-radius:10px; font-size:0.8em;">#${
-              p.id
-            }</span></div>
+                        <span class="pedido-cliente">👤 ${p.clienteNome} (${p.clienteWhatsapp})</span>
+                        <div>${badge} <span style="background:#eee; padding:2px 8px; border-radius:10px; font-size:0.8em;">#${p.id}</span></div>
                     </div>
-                    <div class="pedido-end">📍 <b>Entregar em:</b> ${
-                      p.endereco
-                    }</div>
-                    <div class="pedido-tempo" data-chegada="${
-                      timestampChegada || ''
-                    }">⏱️ ${tempoDecorrido}</div>
+                    <div class="pedido-end">📍 <b>Entregar em:</b> ${p.endereco}</div>
+                    <div class="pedido-tempo" data-chegada="${timestampChegada || ''}">⏱️ ${tempoDecorrido}</div>
                     <div class="pedido-itens">${p.itensResumo}</div>
                     <div class="pedido-total">R$ ${p.total.toFixed(2)}</div>
                     <div class="botoes-container">${botoes}</div>
@@ -431,119 +486,97 @@
             `
           })
 
-          atualizarTemposNosCards()
-          iniciarTimerTempoDecorrido()
-        } catch (error) {
-          console.error(error)
-        }
+        atualizarTemposNosCards()
+        iniciarTimerTempoDecorrido()
+      } catch (error) {
+        console.error(error)
       }
+    }
 
-      async function atualizarStatus(id, novoStatus) {
-        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        try {
-          const res = await fetch(`${API_URL}/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${uLogado.token}`
-            },
-            body: JSON.stringify({ status: novoStatus })
-          })
-          if (res.ok) carregarPedidos()
-          else alert('Erro ao atualizar status.')
-        } catch (e) {
-          alert('Erro de conexão.')
-        }
-      }
-
-      async function excluirPedido(id) {
-        if (!confirm('Apagar pedido permanentemente?')) return
-        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        try {
-          const res = await fetch(`${API_URL}/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${uLogado.token}` }
-          })
-          if (res.ok) carregarPedidos()
-          else alert('Erro ao excluir.')
-        } catch (error) {
-          alert('Erro de conexão ao excluir.')
-        }
-      }
-
-      async function apagarTodosPedidos() {
-        if (todosPedidosGlobal.length === 0) {
-          alert('Não há pedidos para apagar.')
-          return
-        }
-        const confirmacao = confirm(
-          '⚠️ ATENÇÃO: Tem certeza absoluta que deseja apagar TODOS os pedidos do sistema? Esta ação NÃO PODE ser desfeita.'
-        )
-        if (!confirmacao) return
-
-        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        document.getElementById('listaPedidos').innerHTML =
-          '<p>Apagando pedidos, por favor aguarde...</p>'
-
-        try {
-          for (let pedido of todosPedidosGlobal) {
-            await fetch(`${API_URL}/${pedido.id}`, {
-              method: 'DELETE',
-              headers: { Authorization: `Bearer ${uLogado.token}` }
-            })
-          }
-          alert('Todos os pedidos foram apagados com sucesso.')
-          carregarPedidos()
-        } catch (error) {
-          alert('Ocorreu um erro ao tentar apagar os pedidos.')
-          carregarPedidos()
-        }
-      }
-
-      function exportarPedidosCSV() {
-        if (todosPedidosGlobal.length === 0) {
-          alert('Não há pedidos para exportar.')
-          return
-        }
-        let csvContent = '\uFEFF'
-        csvContent +=
-          'ID;Cliente;WhatsApp;Status;Total_Vendido;Endereco;Itens_Resumo\n'
-
-        todosPedidosGlobal.forEach(p => {
-          const limparTexto = texto => {
-            if (!texto) return '""'
-            return `"${String(texto)
-              .replace(/"/g, '""')
-              .replace(/\n/g, ' - ')}"`
-          }
-          const linha = [
-            p.id,
-            limparTexto(p.clienteNome),
-            limparTexto(p.clienteWhatsapp),
-            limparTexto(p.status || 'PENDENTE'),
-            p.total.toFixed(2).replace('.', ','),
-            limparTexto(p.endereco),
-            limparTexto(p.itensResumo)
-          ].join(';')
-          csvContent += linha + '\n'
+    async function atualizarStatus(id, novoStatus) {
+      const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      try {
+        const res = await fetch(`${API_URL}/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${uLogado.token}` },
+          body: JSON.stringify({ status: novoStatus })
         })
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-        link.setAttribute('href', url)
-        link.setAttribute(
-          'download',
-          `Pedidos_AtelierGourmet_${new Date().toISOString().split('T')[0]}.csv`
-        )
-        link.style.display = 'none'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        if (res.ok) carregarPedidos()
+        else alert('Erro ao atualizar status.')
+      } catch (e) {
+        alert('Erro de conexão.')
       }
+    }
 
-      carregarPedidos()
-      setInterval(carregarPedidos, 10000)
-    </script>
-  </body>
+    async function excluirPedido(id) {
+      if (!confirm('Apagar pedido permanentemente?')) return
+      const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${uLogado.token}` }
+        })
+        if (res.ok) carregarPedidos()
+        else alert('Erro ao excluir.')
+      } catch (error) {
+        alert('Erro de conexão ao excluir.')
+      }
+    }
+
+    async function apagarTodosPedidos() {
+      if (todosPedidosGlobal.length === 0) { alert('Não há pedidos para apagar.'); return; }
+      const confirmacao = confirm('⚠️ ATENÇÃO: Tem certeza absoluta que deseja apagar TODOS os pedidos do sistema? Esta ação NÃO PODE ser desfeita.')
+      if (!confirmacao) return
+
+      const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      document.getElementById('listaPedidos').innerHTML = '<p>Apagando pedidos, por favor aguarde...</p>'
+
+      try {
+        for (let pedido of todosPedidosGlobal) {
+          await fetch(`${API_URL}/${pedido.id}`, {
+            method: 'DELETE', headers: { Authorization: `Bearer ${uLogado.token}` }
+          })
+        }
+        alert('Todos os pedidos foram apagados com sucesso.')
+        carregarPedidos()
+      } catch (error) {
+        alert('Ocorreu um erro ao tentar apagar os pedidos.')
+        carregarPedidos()
+      }
+    }
+
+    function exportarPedidosCSV() {
+      if (todosPedidosGlobal.length === 0) { alert('Não há pedidos para exportar.'); return; }
+      let csvContent = '\uFEFF'
+      csvContent += 'ID;Cliente;WhatsApp;Status;Total_Vendido;Endereco;Itens_Resumo\n'
+
+      todosPedidosGlobal.forEach(p => {
+        const limparTexto = texto => {
+          if (!texto) return '""'
+          return `"${String(texto).replace(/"/g, '""').replace(/\n/g, ' - ')}"`
+        }
+        const linha = [
+          p.id, limparTexto(p.clienteNome), limparTexto(p.clienteWhatsapp),
+          limparTexto(p.status || 'PENDENTE'), p.total.toFixed(2).replace('.', ','),
+          limparTexto(p.endereco), limparTexto(p.itensResumo)
+        ].join(';')
+        csvContent += linha + '\n'
+      })
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.setAttribute('href', url)
+      link.setAttribute('download', `Pedidos_AtelierGourmet_${new Date().toISOString().split('T')[0]}.csv`)
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+
+    carregarPedidos()
+    setInterval(carregarPedidos, 10000)
+  </script>
+</body>
+
 </html>
