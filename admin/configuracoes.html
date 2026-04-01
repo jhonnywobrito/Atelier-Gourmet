@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <script>
+      const usuarioSession = JSON.parse(localStorage.getItem('atelierUsuario'))
+      if (!usuarioSession || usuarioSession.role !== 'ADMIN') {
+        window.location.href = '../index.html'
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configurações da Loja</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        color: #333;
+        background: #f4f4f4;
+        margin: 0;
+      }
+
+      .top-nav {
+        margin-bottom: 20px;
+        max-width: 600px;
+        margin: 0 auto 20px auto;
+      }
+      .btn-voltar {
+        background: #5d4037;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-voltar:hover {
+        background: #4a332c;
+      }
+
+      .config-container {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        max-width: 600px;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+
+      .capa-container {
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        background: #eee;
+        border: 2px dashed #ddd;
+        margin-bottom: 20px;
+      }
+      .capa-preview {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .btn-mudar-capa {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .logo-preview {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: white;
+        display: block;
+        margin: -60px auto 10px auto;
+        border: 4px solid #ff85a1;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #666;
+        font-size: 0.9em;
+      }
+      input[type='text'],
+      input[type='password'] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 1em;
+      }
+
+      .horarios-box {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #eee;
+      }
+
+      .dia-linha {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 12px;
+        border-bottom: 1px dashed #ddd;
+        padding-bottom: 12px;
+      }
+      .dia-linha:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+      .dia-nome {
+        flex: 1 1 100%;
+        font-weight: bold;
+        color: #5d4037;
+        margin-bottom: 8px;
+      }
+      .dia-inputs {
+        flex: 1 1 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .dia-inputs input[type='time'] {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-family: inherit;
+        text-align: center;
+        font-size: 16px; /* Evita zoom no iPhone */
+        width: 100%;
+        box-sizing: border-box;
+      }
+      @media (min-width: 600px) {
+        .dia-linha {
+          flex-wrap: nowrap;
+          border-bottom: none;
+          padding-bottom: 0;
+          margin-bottom: 10px;
+        }
+        .dia-nome {
+          flex: 0 0 100px;
+          margin-bottom: 0;
+        }
+        .dia-inputs {
+          flex: 1;
+          flex-direction: row;
+          justify-content: flex-end;
+          align-items: center;
+        }
+        .dia-inputs input[type='time'] {
+          flex: none;
+          width: 110px;
+        }
+      }
+
+      button.btn-salvar {
+        background: #27ae60;
+        color: white;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        width: 100%;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 1.1em;
+        margin-top: 15px;
+        transition: 0.2s;
+      }
+      button.btn-salvar:hover {
+        background: #219653;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-nav">
+      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"
+        ><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a
+      >
+    </div>
+
+    <div class="config-container">
+      <h2 style="color: #5d4037; text-align: center; margin-top: 0">
+        ⚙️ Configurações da Loja
+      </h2>
+
+      <div class="capa-container">
+        <img
+          id="capaPreview"
+          src="https://via.placeholder.com/800x200?text=Sem+Capa"
+          class="capa-preview"
+        />
+        <label class="btn-mudar-capa" for="arquivoCapa"
+          ><i class="fa-solid fa-camera"></i> Mudar Capa</label
+        >
+        <input
+          type="file"
+          id="arquivoCapa"
+          accept="image/*"
+          style="display: none"
+          onchange="atualizarPreview(this, 'capaPreview')"
+        />
+      </div>
+
+      <img
+        id="logoPreview"
+        src="https://via.placeholder.com/150?text=Logo"
+        class="logo-preview"
+      />
+      <input
+        type="file"
+        id="arquivoLogo"
+        accept="image/*"
+        style="display: none"
+        onchange="atualizarPreview(this, 'logoPreview')"
+      />
+      <label
+        for="arquivoLogo"
+        style="
+          text-align: center;
+          color: #ff85a1;
+          cursor: pointer;
+          display: block;
+          font-weight: bold;
+          font-size: 0.9em;
+          margin-bottom: 25px;
+        "
+      >
+        <i class="fa-solid fa-pen"></i> Trocar Logo
+      </label>
+
+      <div class="form-group">
+        <label>Nome da Loja</label>
+        <input type="text" id="adminNome" />
+      </div>
+
+      <div class="form-group">
+        <label>WhatsApp de Login / Contato da Loja</label>
+        <input type="text" id="adminZap" placeholder="Ex: 11999999999" />
+      </div>
+
+      <div class="horarios-box">
+        <label style="color: #5d4037; font-size: 1.1em"
+          ><i class="fa-regular fa-clock"></i> Horários de Funcionamento</label
+        >
+        <p style="font-size: 0.85em; color: #888; margin-top: 5px">
+          Deixe em branco ou digite 00:00 para marcar como "Fechado".
+        </p>
+        <div id="painelHorarios"></div>
+      </div>
+
+      <div
+        class="horarios-box"
+        style="border-color: var(--rosa); border-width: 2px"
+      >
+        <label style="color: var(--rosa); font-size: 1.1em"
+          ><i class="fa-brands fa-pix"></i> Dados para Recebimento (Pix)</label
+        >
+        <div class="form-group" style="margin-top: 10px">
+          <label>Sua Chave Pix (CPF, CNPJ, Celular, Email ou Aleatória)</label>
+          <input type="text" id="adminChavePix" placeholder="Ex: 11999999999" />
+        </div>
+        <div class="form-group">
+          <label>Nome do Titular da Conta (Exatamente como no banco)</label>
+          <input
+            type="text"
+            id="adminNomePix"
+            placeholder="Ex: Jhonny Wendel Oliveira..."
+          />
+        </div>
+        <div class="form-group">
+          <label>Cidade da Agência/Conta</label>
+          <input type="text" id="adminCidadePix" placeholder="Ex: Suzano" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label
+          ><i class="fa-solid fa-lock"></i> Nova Senha (Deixe em branco para
+          manter a atual)</label
+        >
+        <input type="password" id="adminSenha" placeholder="********" />
+      </div>
+
+      <button
+        class="btn-salvar"
+        id="btnSalvarGeral"
+        onclick="salvarConfiguracoes()"
+      >
+        Salvar Todas as Alterações
+      </button>
+    </div>
+
+    <script>
+      const BASE_URL = `https://ateliergourmet.duckdns.org`
+      const API_URL = `${BASE_URL}/usuarios`
+
+      const adminLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      const diasSemana = [
+        'Domingo',
+        'Segunda',
+        'Terça',
+        'Quarta',
+        'Quinta',
+        'Sexta',
+        'Sábado'
+      ]
+
+      window.onload = async () => {
+        try {
+          const res = await fetch(`${BASE_URL}/usuarios/loja`)
+
+          if (res.ok) {
+            const dadosReais = await res.json()
+
+            document.getElementById('adminChavePix').value =
+              dadosReais.chavePix || ''
+            document.getElementById('adminNomePix').value =
+              dadosReais.nomeTitularPix || ''
+            document.getElementById('adminCidadePix').value =
+              dadosReais.cidadePix || ''
+
+            document.getElementById('adminNome').value =
+              dadosReais.nome || adminLogado.nome
+            document.getElementById('adminZap').value =
+              dadosReais.whatsapp || adminLogado.whatsapp
+
+            if (dadosReais.linkLogo) {
+              document.getElementById('logoPreview').src =
+                dadosReais.linkLogo.replace(
+                  'https://ateliergourmet.duckdns.org',
+                  BASE_URL
+                )
+            }
+            if (dadosReais.linkCapa) {
+              document.getElementById('capaPreview').src =
+                dadosReais.linkCapa.replace(
+                  'https://ateliergourmet.duckdns.org',
+                  BASE_URL
+                )
+            }
+
+            carregarPainelHorarios(dadosReais.horarios)
+          }
+        } catch (erro) {
+          console.error('Erro ao puxar dados da loja do servidor', erro)
+          document.getElementById('adminNome').value = adminLogado.nome
+          document.getElementById('adminZap').value = adminLogado.whatsapp
+          carregarPainelHorarios(null)
+        }
+      }
+
+      function carregarPainelHorarios(horariosStr) {
+        let hor = {}
+        try {
+          hor = horariosStr ? JSON.parse(horariosStr) : {}
+        } catch (e) {}
+
+        let painelHTML = ''
+        diasSemana.forEach((dia, index) => {
+          let abre = '',
+            fecha = ''
+          if (hor[index] && hor[index] !== 'Fechado') {
+            ;[abre, fecha] = hor[index].split('-')
+          }
+          painelHTML += `
+                    <div class="dia-linha">
+                        <span class="dia-nome">${dia}</span>
+                        <div class="dia-inputs">
+                            <input type="time" id="abre_${index}" value="${abre}"> até 
+                            <input type="time" id="fecha_${index}" value="${fecha}">
+                        </div>
+                    </div>
+                `
+        })
+        document.getElementById('painelHorarios').innerHTML = painelHTML
+      }
+
+      function atualizarPreview(input, idElemento) {
+        if (input.files && input.files[0]) {
+          const leitor = new FileReader()
+          leitor.onload = function (e) {
+            document.getElementById(idElemento).src = e.target.result
+          }
+          leitor.readAsDataURL(input.files[0])
+        }
+      }
+
+      async function salvarConfiguracoes() {
+        const btn = document.getElementById('btnSalvarGeral')
+        btn.innerText = 'Salvando...'
+        btn.disabled = true
+
+        const fileInputLogo = document.getElementById('arquivoLogo')
+        const fileInputCapa = document.getElementById('arquivoCapa')
+
+        const formData = new FormData()
+        formData.append('nome', document.getElementById('adminNome').value)
+        formData.append('whatsapp', document.getElementById('adminZap').value)
+        formData.append('senha', document.getElementById('adminSenha').value)
+
+        let horariosFinais = {}
+        for (let i = 0; i < 7; i++) {
+          let a = document.getElementById(`abre_${i}`).value
+          let f = document.getElementById(`fecha_${i}`).value
+          horariosFinais[i] = a && f && a !== '00:00' ? `${a}-${f}` : 'Fechado'
+        }
+        formData.append('horarios', JSON.stringify(horariosFinais))
+
+        formData.append(
+          'chavePix',
+          document.getElementById('adminChavePix').value
+        )
+        formData.append(
+          'nomeTitularPix',
+          document.getElementById('adminNomePix').value
+        )
+        formData.append(
+          'cidadePix',
+          document.getElementById('adminCidadePix').value
+        )
+
+        if (fileInputLogo.files[0])
+          formData.append('logo', fileInputLogo.files[0])
+        if (fileInputCapa.files[0])
+          formData.append('capa', fileInputCapa.files[0])
+
+        try {
+          const res = await fetch(`${API_URL}/${adminLogado.id}`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${adminLogado.token}`
+            },
+            body: formData
+          })
+
+          if (res.ok) {
+            const adminAtualizado = await res.json()
+
+            adminAtualizado.token = adminLogado.token
+
+            localStorage.setItem(
+              'atelierUsuario',
+              JSON.stringify(adminAtualizado)
+            )
+            alert('Configurações salvas com sucesso!')
+            location.reload()
+          } else {
+            alert('Erro no servidor ou acesso negado.')
+          }
+        } catch (error) {
+          alert('Erro ao salvar: ' + error.message)
+        } finally {
+          btn.innerText = 'Salvar Todas as Alterações'
+          btn.disabled = false
+        }
+      }
+    </script>
+  </body>
+</html>
