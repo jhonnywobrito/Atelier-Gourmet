@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <script>
+      const usuarioSession = JSON.parse(localStorage.getItem('atelierUsuario'));
+      if (!usuarioSession || usuarioSession.role !== 'ADMIN') {
+        window.location.href = '../index.html';
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciar Categorias</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        background: #f4f4f4;
+        color: #333;
+        margin: 0;
+      }
+      
+      .top-nav {
+        margin-bottom: 20px;
+      }
+      .btn-voltar {
+        background: #5d4037;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-voltar:hover { background: #4a332c; }
+
+      .form-container {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        border-top: 4px solid #3498db;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      input {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 200px;
+        font-size: 1em;
+      }
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+        font-size: 1em;
+      }
+      button:hover { background: #2980b9; }
+
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 400px;
+      }
+      th, td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+      }
+      th {
+        background: #2c3e50;
+        color: white;
+        font-weight: bold;
+      }
+      .btn-tabela {
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 0.85em;
+        margin-right: 5px;
+      }
+      .btn-excluir {
+        background: #e74c3c;
+      }
+      .btn-excluir:hover { background: #c0392b; }
+    </style>
+  </head>
+  <body>
+    <div class="top-nav">
+      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+    </div>
+
+    <h2 style="color: #5d4037; margin-top: 0;">🏷️ Categorias</h2>
+
+    <div class="form-container">
+      <input type="hidden" id="catId" />
+      <input type="text" id="catNome" placeholder="Nome da Categoria (Ex: Tortas)" />
+      <button id="btnSalvar" onclick="salvarCategoria()">Adicionar</button>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista-categorias"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const BASE_URL = `https://ateliergourmet.duckdns.org`;
+      const API = `${BASE_URL}/categorias`;
+
+      async function listar() {
+        const res = await fetch(API);
+        const dados = await res.json();
+        const body = document.getElementById('lista-categorias');
+        body.innerHTML = dados.map(c => `
+            <tr>
+                <td>${c.id}</td>
+                <td><strong>${c.nome}</strong></td>
+                <td>
+                    <button class="btn-tabela" onclick="prepararEdicao(${c.id}, '${c.nome}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-tabela btn-excluir" onclick="excluir(${c.id})"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+      }
+
+      function prepararEdicao(id, nome) {
+        document.getElementById('catId').value = id;
+        document.getElementById('catNome').value = nome;
+        document.getElementById('btnSalvar').innerText = 'Atualizar';
+        window.scrollTo(0, 0);
+      }
+
+      async function salvarCategoria() {
+        const id = document.getElementById('catId').value;
+        const nome = document.getElementById('catNome').value;
+        if(!nome.trim()) return alert("O nome não pode ser vazio!");
+
+        const metodo = id ? 'PUT' : 'POST';
+        const url = id ? `${API}/${id}` : API;
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
+
+        await fetch(url, {
+          method: metodo,
+          headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${uLogado.token}` 
+          },
+          body: JSON.stringify({ nome })
+        });
+
+        document.getElementById('catId').value = '';
+        document.getElementById('catNome').value = '';
+        document.getElementById('btnSalvar').innerText = 'Adicionar';
+        listar();
+      }
+
+      async function excluir(id) {
+        if (confirm('Atenção: Excluir esta categoria pode desvincular os doces cadastrados nela. Deseja continuar?')) {
+          const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
+          await fetch(`${API}/${id}`, { 
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${uLogado.token}` } 
+          });
+          listar();
+        }
+      }
+
+      listar();
+    </script>
+  </body>
+</html>

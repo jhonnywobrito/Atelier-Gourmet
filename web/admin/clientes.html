@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <script>
+      const usuarioSession = JSON.parse(localStorage.getItem('atelierUsuario'))
+      if (!usuarioSession || usuarioSession.role !== 'ADMIN') {
+        window.location.href = '../index.html'
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base de Clientes</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: 'Segoe UI', sans-serif;
+        padding: 20px;
+        background: #f4f4f4;
+        color: #333;
+        margin: 0;
+      }
+
+      /* Navegação Superior */
+      .top-nav {
+        margin-bottom: 20px;
+      }
+      .btn-voltar {
+        background: #5d4037;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-voltar:hover {
+        background: #4a332c;
+      }
+
+      .controles-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .busca-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        outline: none;
+        box-sizing: border-box;
+      }
+
+      .botoes-topo {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      @media (min-width: 600px) {
+        .botoes-topo {
+          width: auto;
+        }
+      }
+
+      .btn-acao-topo {
+        border: none;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        transition: 0.2s;
+        color: white;
+        flex: 1;
+        justify-content: center;
+      }
+
+      .btn-exportar {
+        background: #27ae60;
+      }
+      .btn-exportar:hover {
+        background: #219653;
+      }
+      .btn-apagar-todos {
+        background: #c0392b;
+      }
+      .btn-apagar-todos:hover {
+        background: #a93226;
+      }
+
+      /* Estilos dos Cards */
+      .cliente-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        border-left: 5px solid #ff85a1;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: 0.2s;
+        flex-wrap: wrap;
+      }
+      .cliente-card:hover {
+        transform: translateX(5px);
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background: #eee;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        color: #aaa;
+        flex-shrink: 0;
+      }
+      .info {
+        flex: 1;
+        min-width: 200px;
+      }
+      .nome {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #5d4037;
+        margin: 0 0 5px 0;
+      }
+      .zap {
+        color: #666;
+        font-size: 0.9em;
+        margin: 0 0 5px 0;
+      }
+      .end {
+        color: #888;
+        font-size: 0.85em;
+        margin: 0;
+        background: #f9f9f9;
+        padding: 5px;
+        border-radius: 5px;
+        display: inline-block;
+      }
+
+      .acoes-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .btn-card {
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        font-size: 0.85em;
+        transition: 0.2s;
+      }
+
+      .btn-chamar {
+        background: #25d366;
+        color: white;
+      }
+      .btn-chamar:hover {
+        background: #1ebd5b;
+      }
+      .btn-excluir-cliente {
+        background: #ebedef;
+        color: #c0392b;
+        border: 1px solid #ddd;
+      }
+      .btn-excluir-cliente:hover {
+        background: #fdedec;
+        border-color: #e74c3c;
+      }
+
+      @media (max-width: 600px) {
+        .cliente-card {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .acoes-card {
+          width: 100%;
+          flex-direction: row;
+        }
+        .btn-card {
+          flex: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-nav">
+      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"
+        ><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a
+      >
+    </div>
+
+    <h2 style="color: #5d4037; margin-top: 0">👥 Base de Clientes</h2>
+
+    <div class="controles-container">
+      <input
+        type="text"
+        id="buscaCliente"
+        class="busca-input"
+        placeholder="🔍 Buscar por nome ou WhatsApp..."
+        oninput="filtrarClientes()"
+      />
+      <div class="botoes-topo">
+        <button class="btn-acao-topo btn-exportar" onclick="exportarCSV()">
+          📊 Exportar CSV
+        </button>
+        <button
+          class="btn-acao-topo btn-apagar-todos"
+          onclick="apagarTodosClientes()"
+        >
+          🗑️ Apagar Todos
+        </button>
+      </div>
+    </div>
+
+    <div id="listaClientes">Carregando clientes...</div>
+
+    <script>
+      const API_URL = `https://ateliergourmet.duckdns.org/usuarios`
+      const CLIENTES_URL = `${API_URL}/clientes`
+
+      let todosClientes = []
+
+      async function carregarClientes() {
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+        if (!uLogado || !uLogado.token) {
+          window.location.href = '../index.html'
+          return
+        }
+
+        try {
+          const res = await fetch(CLIENTES_URL, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${uLogado.token}` }
+          })
+          if (!res.ok) throw new Error('Falha na API')
+
+          todosClientes = await res.json()
+          todosClientes.sort((a, b) => a.nome.localeCompare(b.nome))
+          renderizarClientes(todosClientes)
+        } catch (error) {
+          document.getElementById('listaClientes').innerHTML =
+            'Erro ao carregar lista de clientes.'
+        }
+      }
+
+      function renderizarClientes(lista) {
+        const container = document.getElementById('listaClientes')
+        container.innerHTML = ''
+
+        if (lista.length === 0) {
+          container.innerHTML =
+            "<p style='color: #888; font-style: italic;'>Nenhum cliente encontrado.</p>"
+          return
+        }
+
+        lista.forEach(c => {
+          let enderecoFormatado = 'Endereço não cadastrado'
+          if (c.rua)
+            enderecoFormatado = `${c.rua}, ${c.numero} - ${c.bairro}, ${c.cidade}`
+
+          let zapLimpo = c.whatsapp.replace(/\D/g, '')
+          if (!zapLimpo.startsWith('55')) zapLimpo = '55' + zapLimpo
+
+          container.innerHTML += `
+            <div class="cliente-card" id="card-cliente-${c.id}">
+                <div class="avatar">👤</div>
+                <div class="info">
+                    <h3 class="nome">${c.nome}</h3>
+                    <p class="zap">📱 ${c.whatsapp}</p>
+                    <p class="end">📍 ${enderecoFormatado}</p>
+                </div>
+                <div class="acoes-card">
+                    <a href="https://wa.me/${zapLimpo}" target="_blank" class="btn-card btn-chamar">💬 Chamar</a>
+                    <button onclick="excluirCliente(${c.id}, '${c.nome}')" class="btn-card btn-excluir-cliente">Remover</button>
+                </div>
+            </div>`
+        })
+      }
+
+      async function excluirCliente(id, nome) {
+        if (
+          !confirm(
+            `Deseja realmente remover o cliente "${nome}"? Esta ação não pode ser desfeita.`
+          )
+        )
+          return
+
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+        try {
+          const res = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${uLogado.token}` }
+          })
+          if (res.ok) {
+            const card = document.getElementById(`card-cliente-${id}`)
+            if (card) card.remove()
+            todosClientes = todosClientes.filter(c => c.id !== id)
+          } else alert('Erro ao excluir cliente. Verifique as permissões.')
+        } catch (e) {
+          alert('Erro de conexão ao excluir.')
+        }
+      }
+
+      async function apagarTodosClientes() {
+        if (todosClientes.length === 0)
+          return alert('Não há clientes para apagar.')
+        const confirmacao = confirm(
+          '⚠️ ATENÇÃO: Você está prestes a apagar TODOS os clientes do banco de dados!\n\nTem certeza absoluta?'
+        )
+        if (!confirmacao) return
+
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+        document.getElementById('listaClientes').innerHTML =
+          'Limpando base de dados, por favor aguarde...'
+
+        try {
+          for (let c of todosClientes) {
+            await fetch(`${API_URL}/${c.id}`, {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${uLogado.token}` }
+            })
+          }
+          alert('Base de clientes limpa com sucesso!')
+          carregarClientes()
+        } catch (e) {
+          alert('Ocorreu um erro durante a limpeza.')
+          carregarClientes()
+        }
+      }
+
+      function filtrarClientes() {
+        const termo = document
+          .getElementById('buscaCliente')
+          .value.toLowerCase()
+        const filtrados = todosClientes.filter(
+          c =>
+            c.nome.toLowerCase().includes(termo) ||
+            c.whatsapp.toLowerCase().includes(termo)
+        )
+        renderizarClientes(filtrados)
+      }
+
+      function exportarCSV() {
+        if (todosClientes.length === 0)
+          return alert('Não há dados para exportar.')
+        let csvContent = '\uFEFFNome;WhatsApp;CEP;Rua;Numero;Bairro;Cidade\n'
+        todosClientes.forEach(c => {
+          const limpar = t => (!t ? '""' : `"${String(t).replace(/"/g, '""')}"`)
+          csvContent +=
+            [
+              limpar(c.nome),
+              limpar(c.whatsapp),
+              limpar(c.cep),
+              limpar(c.rua),
+              limpar(c.numero),
+              limpar(c.bairro),
+              limpar(c.cidade)
+            ].join(';') + '\n'
+        })
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.download = `Clientes_AtelierGourmet_${
+          new Date().toISOString().split('T')[0]
+        }.csv`
+        link.click()
+      }
+
+      carregarClientes()
+    </script>
+  </body>
+</html>
