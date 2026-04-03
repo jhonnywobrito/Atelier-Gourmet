@@ -36,6 +36,7 @@
         overflow-x: hidden;
       }
 
+      /* TOAST REFINADO */
       .toast-notificacao {
         position: fixed;
         top: -100px;
@@ -60,6 +61,7 @@
         top: 30px;
       }
 
+      /* CAPA REFINADA */
       .capa-loja {
         width: 100%;
         height: 260px;
@@ -97,6 +99,7 @@
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
       }
 
+      /* NAVEGAÇÃO */
       .nav-container {
         position: sticky;
         top: 0;
@@ -170,6 +173,7 @@
         box-shadow: 0 0 0 4px rgba(255, 133, 161, 0.1);
       }
 
+      /* GRID E CARDS DE DOCES */
       .container {
         max-width: 1100px;
         margin: 0 auto;
@@ -186,6 +190,7 @@
         padding-left: 15px;
       }
 
+      /* LAYOUT MOBILE (Horizontal/Lista Corrigido)*/
       .grid-produtos {
         display: grid;
         grid-template-columns: 1fr;
@@ -539,6 +544,7 @@
         font-family: inherit;
       }
 
+      /* DETALHES MODAL PRODUTO */
       .qtd-control {
         display: flex;
         justify-content: center;
@@ -1255,7 +1261,7 @@
             type="text"
             id="inputRua"
             placeholder="Rua / Avenida"
-            disabled
+            disabled3
             oninput="verificarCamposEntrega()"
           />
           <div style="display: flex; gap: 10px">
@@ -2349,8 +2355,7 @@
         const btnFinalizar = document.getElementById('btnFinalizarPedido')
         const textoOriginalBtn = btnFinalizar.innerText
         btnFinalizar.disabled = true
-        btnFinalizar.innerHTML =
-          '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
+        btnFinalizar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
         btnFinalizar.style.opacity = '0.7'
         btnFinalizar.style.pointerEvents = 'none'
 
@@ -2358,24 +2363,19 @@
         let valorTotal = 0
         let itensResumoDB = ''
 
-        let temAdicional =
-          pedidoAtivoExistente &&
-          (pedidoAtivoExistente.status === 'PENDENTE' ||
-            pedidoAtivoExistente.status === 'PREPARANDO')
+        let temAdicional = pedidoAtivoExistente && (pedidoAtivoExistente.status === 'PENDENTE' || pedidoAtivoExistente.status === 'PREPARANDO')
 
         if (temAdicional) {
           itensResumoDB += `🚨 *ADICIONAL AO PEDIDO #${pedidoAtivoExistente.id}* (Em preparo)\n\n`
         }
 
         carrinho.forEach(item => {
-          let precoUnidadeComOpcoes =
-            item.precoCalculadoUnitario || item.produto.valorUnitario
+          let precoUnidadeComOpcoes = item.precoCalculadoUnitario || item.produto.valorUnitario
           let subtotal = item.quantidade * precoUnidadeComOpcoes
           valorTotal += subtotal
 
           itensResumoDB += `${item.quantidade}x ${item.produto.nome} (${item.produto.categoria})\n`
-          if (item.complementosTexto)
-            itensResumoDB += `${item.complementosTexto}\n`
+          if (item.complementosTexto) itensResumoDB += `${item.complementosTexto}\n`
           if (item.observacao) itensResumoDB += `   (Obs: ${item.observacao})\n`
         })
 
@@ -2385,6 +2385,13 @@
           btnFinalizar.style.opacity = '1'
           btnFinalizar.style.pointerEvents = 'auto'
         }
+
+        // =========================================================================
+        // NOVA LÓGICA DE PAGAMENTO: CHAMADA PARA O JAVA (MERCADO PAGO)
+        // =========================================================================
+
+        let enderecoFinal = '';
+        let taxaCobrada = 0;
 
         if (tipoEntregaAtual === 'ENTREGA') {
           const cep = document.getElementById('inputCep').value
@@ -2399,139 +2406,108 @@
             return
           }
 
-          let isentoTx =
-            temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
-          let taxaCobrada = isentoTx ? 0 : taxaEntregaAtual
+          let isentoTx = temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
+          taxaCobrada = isentoTx ? 0 : taxaEntregaAtual
           valorTotal += taxaCobrada
 
-          if (taxaCobrada > 0)
-            itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada
-              .toFixed(2)
-              .replace('.', ',')}\n`
-          else if (isentoTx)
-            itensResumoDB += `\n🛵 Taxa de Entrega: ISENTA (Pedido #${pedidoAtivoExistente.id})\n`
+          if (taxaCobrada > 0) itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada.toFixed(2).replace('.', ',')}\n`
+          else if (isentoTx) itensResumoDB += `\n🛵 Taxa de Entrega: ISENTA (Pedido #${pedidoAtivoExistente.id})\n`
 
-          pedidoPendenteTemp = {
-            clienteNome: usuarioLogado.nome,
-            clienteWhatsapp: usuarioLogado.whatsapp,
-            endereco: `${r}, ${n} - ${b}, ${c} (CEP: ${cep})`,
-            itensResumo: itensResumoDB,
-            total: valorTotal,
-            cep: cep,
-            rua: r,
-            numero: n,
-            bairro: b,
-            cidade: c
-          }
+          enderecoFinal = `${r}, ${n} - ${b}, ${c} (CEP: ${cep})`;
 
-          try {
-            const res = await fetch(LOJA_URL)
-            dadosLojaPix = await res.json()
-            if (!dadosLojaPix.chavePix) {
-              finalizarAposPagamentoEntrega(usuarioLogado)
-              return
-            }
-          } catch (e) {
-            finalizarAposPagamentoEntrega(usuarioLogado)
-            return
-          }
-
-          const vFmt = valorTotal.toFixed(2)
-          const pay = gerarPayloadPix(
-            dadosLojaPix.chavePix,
-            dadosLojaPix.nomeTitularPix,
-            dadosLojaPix.cidadePix,
-            vFmt
-          )
-          localStorage.setItem('pixPayloadPendente', pay)
-          localStorage.setItem('pixValorPendente', vFmt)
-
-          document.getElementById(
-            'valorPixTela'
-          ).innerText = `R$ ${vFmt.replace('.', ',')}`
-          document.getElementById('textoCopiaECola').value = pay
-          document.getElementById('qrcodePix').innerHTML = ''
-          new QRCode(document.getElementById('qrcodePix'), {
-            text: pay,
-            width: 180,
-            height: 180,
-            colorDark: '#5d4037',
-            colorLight: '#fff',
-            correctLevel: QRCode.CorrectLevel.L
-          })
-
-          fecharModal('modalCarrinho')
-          setTimeout(() => {
-            resetBtn()
-            abrirModal('modalPagamentoPix')
-          }, 350)
         } else {
-          pedidoPendenteTemp = {
-            clienteNome: usuarioLogado.nome,
-            clienteWhatsapp: usuarioLogado.whatsapp,
-            endereco: `RETIRADA NA LOJA`,
-            itensResumo: itensResumoDB,
-            total: valorTotal,
-            cep: '',
-            rua: '',
-            numero: '',
-            bairro: '',
-            cidade: ''
-          }
+          enderecoFinal = `RETIRADA NA LOJA`;
+        }
 
-          if (
-            document.querySelector(
-              'input[name="formaPagamentoRetirada"]:checked'
-            ).value === 'PIX_AGORA'
-          ) {
-            try {
-              const res = await fetch(LOJA_URL)
-              dadosLojaPix = await res.json()
-              if (!dadosLojaPix.chavePix) {
-                finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL')
-                return
+        pedidoPendenteTemp = {
+          clienteNome: usuarioLogado.nome,
+          clienteWhatsapp: usuarioLogado.whatsapp,
+          endereco: enderecoFinal,
+          itensResumo: itensResumoDB,
+          total: valorTotal,
+          cep: document.getElementById('inputCep') ? document.getElementById('inputCep').value : '',
+          rua: document.getElementById('inputRua') ? document.getElementById('inputRua').value : '',
+          numero: document.getElementById('inputNumero') ? document.getElementById('inputNumero').value : '',
+          bairro: document.getElementById('inputBairro') ? document.getElementById('inputBairro').value : '',
+          cidade: document.getElementById('inputCidade') ? document.getElementById('inputCidade').value : ''
+        }
+
+        try {
+          pedidoPendenteTemp.status = "AGUARDANDO_PAGAMENTO"; 
+
+          const resPedido = await fetch(PEDIDOS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pedidoPendenteTemp)
+          });
+          
+          if (!resPedido.ok) throw new Error("Erro ao salvar pedido no banco.");
+          
+          const pedidoSalvo = await resPedido.json();
+          const idPedidoReal = pedidoSalvo.id;
+
+          const formaPagamento = tipoEntregaAtual === 'ENTREGA' ? 'PIX_AGORA' : document.querySelector('input[name="formaPagamentoRetirada"]:checked').value;
+
+          if (formaPagamento === 'PIX_AGORA') {
+             
+              const pedidoDTO = {
+                  id: idPedidoReal,
+                  total: valorTotal
+              };
+
+              const resPix = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/pix`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(pedidoDTO)
+              });
+
+              if (resPix.ok) {
+                  const pixData = await resPix.json();
+                  
+                  const pay = pixData.copia_e_cola;
+                  const qrCodeBase64 = pixData.qr_code_base64;
+                  const idPagamentoMp = pixData.id_pagamento_mp;
+
+                  const vFmt = valorTotal.toFixed(2);
+
+                  localStorage.setItem('pixPayloadPendente', pay);
+                  localStorage.setItem('pixValorPendente', vFmt);
+                  localStorage.setItem('idPagamentoMP', idPagamentoMp);
+
+                  document.getElementById('valorPixTela').innerText = `R$ ${vFmt.replace('.', ',')}`;
+                  document.getElementById('textoCopiaECola').value = pay;
+                  
+                  document.getElementById('qrcodePix').innerHTML = `<img src="data:image/png;base64,${qrCodeBase64}" width="180" height="180"/>`;
+
+                  fecharModal('modalCarrinho');
+                  setTimeout(() => {
+                    resetBtn();
+                    abrirModal('modalPagamentoPix');
+                    iniciarVerificacaoPagamento(idPedidoReal); 
+                  }, 350);
+
+              } else {
+                  throw new Error("Erro ao gerar Pix no Mercado Pago.");
               }
-            } catch (e) {
-              finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL')
-              return
-            }
 
-            const vFmt = valorTotal.toFixed(2)
-            const pay = gerarPayloadPix(
-              dadosLojaPix.chavePix,
-              dadosLojaPix.nomeTitularPix,
-              dadosLojaPix.cidadePix,
-              vFmt
-            )
-            localStorage.setItem('pixPayloadPendente', pay)
-            localStorage.setItem('pixValorPendente', vFmt)
-
-            document.getElementById(
-              'valorPixTela'
-            ).innerText = `R$ ${vFmt.replace('.', ',')}`
-            document.getElementById('textoCopiaECola').value = pay
-            document.getElementById('qrcodePix').innerHTML = ''
-            new QRCode(document.getElementById('qrcodePix'), {
-              text: pay,
-              width: 180,
-              height: 180,
-              colorDark: '#5d4037',
-              colorLight: '#fff',
-              correctLevel: QRCode.CorrectLevel.L
-            })
-
-            fecharModal('modalCarrinho')
-            setTimeout(() => {
-              resetBtn()
-              abrirModal('modalPagamentoPix')
-            }, 350)
           } else {
-            resetBtn()
-            finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL')
+              await fetch(`${PEDIDOS_URL}/${idPedidoReal}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${usuarioLogado.token}` },
+                body: JSON.stringify({ status: 'PENDENTE' })
+              });
+
+              resetBtn();
+              finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL');
           }
+
+        } catch (error) {
+           console.error(error);
+           alert("Ocorreu um erro ao processar o seu pedido. Tente novamente.");
+           resetBtn();
         }
       }
-
+      
       function copiarPix() {
         const t = document.getElementById('textoCopiaECola')
         t.select()
