@@ -2487,6 +2487,14 @@
                   }, 350);
 
               } else {
+                  // AQUI ESTÁ A MÁGICA: Lendo o erro que o Java enviou
+                  const erroNoJava = await resPix.json();
+                  
+                  // Joga o motivo na cara do usuário (e na nossa, para debugar!)
+                  alert("⚠️ O Mercado Pago recusou o Pix. Motivo: \n" + erroNoJava.erro_motivo);
+                  
+                  // Destrava o botão de finalizar pedido
+                  resetBtn();
                   throw new Error("Erro ao gerar Pix no Mercado Pago.");
               }
 
