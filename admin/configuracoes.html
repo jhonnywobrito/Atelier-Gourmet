@@ -282,31 +282,6 @@
         <div id="painelHorarios"></div>
       </div>
 
-      <div
-        class="horarios-box"
-        style="border-color: var(--rosa); border-width: 2px"
-      >
-        <label style="color: var(--rosa); font-size: 1.1em"
-          ><i class="fa-brands fa-pix"></i> Dados para Recebimento (Pix)</label
-        >
-        <div class="form-group" style="margin-top: 10px">
-          <label>Sua Chave Pix (CPF, CNPJ, Celular, Email ou Aleatória)</label>
-          <input type="text" id="adminChavePix" placeholder="Ex: 11999999999" />
-        </div>
-        <div class="form-group">
-          <label>Nome do Titular da Conta (Exatamente como no banco)</label>
-          <input
-            type="text"
-            id="adminNomePix"
-            placeholder="Ex: Jhonny Wendel Oliveira..."
-          />
-        </div>
-        <div class="form-group">
-          <label>Cidade da Agência/Conta</label>
-          <input type="text" id="adminCidadePix" placeholder="Ex: Suzano" />
-        </div>
-      </div>
-
       <div class="form-group">
         <label
           ><i class="fa-solid fa-lock"></i> Nova Senha (Deixe em branco para
@@ -345,13 +320,6 @@
 
           if (res.ok) {
             const dadosReais = await res.json()
-
-            document.getElementById('adminChavePix').value =
-              dadosReais.chavePix || ''
-            document.getElementById('adminNomePix').value =
-              dadosReais.nomeTitularPix || ''
-            document.getElementById('adminCidadePix').value =
-              dadosReais.cidadePix || ''
 
             document.getElementById('adminNome').value =
               dadosReais.nome || adminLogado.nome
@@ -440,18 +408,6 @@
         }
         formData.append('horarios', JSON.stringify(horariosFinais))
 
-        formData.append(
-          'chavePix',
-          document.getElementById('adminChavePix').value
-        )
-        formData.append(
-          'nomeTitularPix',
-          document.getElementById('adminNomePix').value
-        )
-        formData.append(
-          'cidadePix',
-          document.getElementById('adminCidadePix').value
-        )
 
         if (fileInputLogo.files[0])
           formData.append('logo', fileInputLogo.files[0])
