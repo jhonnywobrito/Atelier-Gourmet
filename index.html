@@ -498,7 +498,11 @@
       }
       @media (min-width: 768px) {
         .painel-usuario {
-          display: none;
+          left: 50%;
+          transform: translateX(-50%);
+          width: auto;
+          max-width: 1000px;
+          border-radius: 15px 15px 0 0;
         }
       }
       .btn-login {
@@ -3104,7 +3108,7 @@
       })
 
       const mp = new MercadoPago(
-        'APP_USR-36349551-c024-4839-bcd3-43472a36238f',
+        'APP_USR-15ce7e1c-f7a1-4a98-b439-9f4da6ded110',
         { locale: 'pt-BR' }
       )
       const bricksBuilder = mp.bricks()
