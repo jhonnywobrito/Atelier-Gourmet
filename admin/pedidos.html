@@ -346,8 +346,8 @@
 
             if (status === 'AGUARDANDO_PAGAMENTO') {
               classeCard = 'novo-pedido'
-              badge = '<span class="badge-status" style="background:#e67e22">⏳ AGUARDANDO PIX</span>'
-              botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PENDENTE')">💰 Aprovar Pix Manual</button>`
+              badge = '<span class="badge-status" style="background:#e67e22">⏳ AGUARDANDO PAGAMENTO</span>'
+              botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PENDENTE')">💰 Aprovar manualmente</button>`
             } else if (status === 'PENDENTE') {
               classeCard = 'novo-pedido'
               badge = '<span class="badge-novo">🔴 NOVO PEDIDO</span>'
