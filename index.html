@@ -2308,10 +2308,15 @@
           }
 
           if (latCliente) {
-            taxaEntregaAtual = calcularFrete(
-              calcularDistanciaKM(LOJA_LAT, LOJA_LNG, latCliente, lngCliente)
-            )
-            iNumero.disabled = false
+            let distanciaCalculada = calcularDistanciaKM(LOJA_LAT, LOJA_LNG, latCliente, lngCliente);
+            
+            if (distanciaCalculada > 30) {
+              throw new Error('DISTANCIA_EXCEDIDA');
+            }
+
+            taxaEntregaAtual = calcularFrete(distanciaCalculada);
+            iNumero.disabled = false;
+            
             if (!rua) {
               iRua.disabled = false
               iRua.placeholder = 'Qual sua rua?'
@@ -2322,9 +2327,17 @@
               iBairro.placeholder = 'Qual seu bairro?'
             }
             if (!cidade) iCidade.disabled = false
+            
           } else throw new Error('Região não mapeada')
         } catch (e) {
           msgErro.style.display = 'block'
+          
+          if (e.message === 'DISTANCIA_EXCEDIDA') {
+            msgErro.innerHTML = 'Infelizmente você está fora da nossa área de entrega (máx 30km). <br>Por favor, selecione <b>Retirada na Loja</b>!';
+          } else {
+            msgErro.innerText = 'CEP não encontrado.';
+          }
+          
           taxaEntregaAtual = 0
           iRua.value = iBairro.value = iCidade.value = iNumero.value = ''
         } finally {
