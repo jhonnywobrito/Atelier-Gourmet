@@ -234,7 +234,7 @@
         <input
           type="number"
           id="preco"
-          placeholder="Preço Base (Ex: 35.00)"
+          placeholder="Preço Base (Ex: 35.00 ou 0 para A partir de)"
           step="0.01"
           style="flex: 1; min-width: 120px"
         />
@@ -557,8 +557,9 @@
           opcionais: JSON.stringify(gruposOpcionais)
         }
 
-        if (!produto.nome || !produto.valorUnitario || !produto.categoria) {
-          alert('Preencha o nome, preço e categoria!')
+        // 🔥 A MÁGICA ESTÁ AQUI! Agora ele aceita o '0' tranquilamente.
+        if (!produto.nome || isNaN(produto.valorUnitario) || produto.valorUnitario < 0 || !produto.categoria) {
+          alert('Preencha o nome, um preço válido (pode ser 0) e a categoria!')
           return
         }
 
