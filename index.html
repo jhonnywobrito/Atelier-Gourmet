@@ -1218,6 +1218,20 @@
             >
           </div>
           <div
+            id="linhaTaxaCartao"
+            style="
+              display: none;
+              justify-content: space-between;
+              color: #e67e22;
+              margin-bottom: 5px;
+            "
+          >
+            <span>Taxa Cartão de Crédito (5%):</span
+            ><span id="valorTaxaCartao" style="font-weight: bold"
+              >R$ 0,00</span
+            >
+          </div>
+          <div
             class="total-carrinho"
             id="valorTotalCarrinho"
             style="
@@ -1383,6 +1397,7 @@
 
       let taxaEntregaAtual = 0
       let valorSubtotalAtual = 0
+      let taxaCartaoAtual = 0
       let pedidoAtivoExistente = null
       let todosProdutos = []
       let adminContatoGlobal = ''
@@ -1982,6 +1997,17 @@
           avisoDiv.style.display = 'none'
         }
 
+        // Detectar forma de pagamento selecionada
+        let formaPagamentaSelecionada = '';
+        if (tipoEntregaAtual === 'ENTREGA') {
+          const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
+          formaPagamentaSelecionada = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA';
+        } else {
+          const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
+          formaPagamentaSelecionada = opcaoRetirada ? opcaoRetirada.value : 'PIX_AGORA';
+        }
+
+        // Calcular taxa de entrega
         if (tipoEntregaAtual === 'ENTREGA' && taxaEntregaAtual > 0) {
           document.getElementById('linhaTaxaEntrega').style.display = 'flex'
           if (isentoDeTaxa) {
@@ -1990,30 +2016,34 @@
             ).innerHTML = `<span style="text-decoration: line-through; color: #999; margin-right: 5px;">R$ ${taxaEntregaAtual
               .toFixed(2)
               .replace('.', ',')}</span> Grátis`
-            document.getElementById(
-              'valorTotalCarrinho'
-            ).innerText = `Total: R$ ${valorSubtotalAtual
-              .toFixed(2)
-              .replace('.', ',')}`
           } else {
             document.getElementById(
               'valorTaxaEntrega'
             ).innerText = `R$ ${taxaEntregaAtual.toFixed(2).replace('.', ',')}`
-            document.getElementById(
-              'valorTotalCarrinho'
-            ).innerText = `Total: R$ ${(valorSubtotalAtual + taxaEntregaAtual)
-              .toFixed(2)
-              .replace('.', ',')}`
           }
         } else {
           document.getElementById('linhaTaxaEntrega').style.display = 'none'
-          document.getElementById(
-            'valorTotalCarrinho'
-          ).innerText = `Total: R$ ${valorSubtotalAtual
-            .toFixed(2)
-            .replace('.', ',')}`
         }
+
+        // Calcular taxa de cartão de crédito (5%)
+        let subtotalComEntrega = isentoDeTaxa ? valorSubtotalAtual : valorSubtotalAtual + (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0);
+        
+        if (formaPagamentaSelecionada === 'CARTAO_CREDITO') {
+          taxaCartaoAtual = subtotalComEntrega * 0.05;
+          document.getElementById('linhaTaxaCartao').style.display = 'flex'
+          document.getElementById('valorTaxaCartao').innerText = `R$ ${taxaCartaoAtual.toFixed(2).replace('.', ',')}`
+        } else {
+          taxaCartaoAtual = 0;
+          document.getElementById('linhaTaxaCartao').style.display = 'none'
+        }
+
+        // Calcular total final
+        let totalFinal = subtotalComEntrega + taxaCartaoAtual;
+        document.getElementById(
+          'valorTotalCarrinho'
+        ).innerText = `Total: R$ ${totalFinal.toFixed(2).replace('.', ',')}`
       }
+
 
       function esvaziarCarrinho() {
         if (confirm('Deseja remover todos os itens da sacola?')) {
@@ -2383,6 +2413,25 @@
           cidade: document.getElementById('inputCidade') ? document.getElementById('inputCidade').value : ''
         }
 
+        // Detectar forma de pagamento e aplicar taxa de cartão se necessário
+        let formaPagamento = '';
+        if (tipoEntregaAtual === 'ENTREGA') {
+          const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
+          formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA';
+        } else {
+          const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
+          formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL';
+        }
+
+        // Aplicar taxa de 5% para cartão de crédito
+        if (formaPagamento === 'CARTAO_CREDITO') {
+          let taxaCartao = valorTotal * 0.05;
+          valorTotal += taxaCartao;
+          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao.toFixed(2).replace('.', ',')}\n`;
+          pedidoPendenteTemp.total = valorTotal;
+          pedidoPendenteTemp.itensResumo = itensResumoDB;
+        }
+
         try {
           pedidoPendenteTemp.status = "AGUARDANDO_PAGAMENTO"; 
 
@@ -2397,16 +2446,7 @@
           const pedidoSalvo = await resPedido.json();
           const idPedidoReal = pedidoSalvo.id;
 
-          // --- NOVA LÓGICA DE DETECÇÃO DE PAGAMENTO ---
-          let formaPagamento = '';
-          if (tipoEntregaAtual === 'ENTREGA') {
-              const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
-              formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA'; // Default de segurança
-          } else {
-              const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
-              formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL'; // Default de segurança
-          }
-
+          // formaPagamento já foi detectada antes e a taxa de cartão foi aplicada se necessário
           if (formaPagamento === 'PIX_AGORA') {
               const pedidoDTO = {
                   id: idPedidoReal,
@@ -2825,6 +2865,12 @@
       document.addEventListener('DOMContentLoaded', () => {
         verificarSeAdmin()
         verificarPedidoAtivo()
+        
+        // Adicionar listeners para formas de pagamento
+        const botoesFormaPagamento = document.querySelectorAll('input[name="formaPagamentoEntrega"], input[name="formaPagamentoRetirada"]');
+        botoesFormaPagamento.forEach(botao => {
+          botao.addEventListener('change', atualizarExibicaoTotaisCarrinho);
+        });
       })
 
       const mp = new MercadoPago('APP_USR-36349551-c024-4839-bcd3-43472a36238f', { locale: 'pt-BR' });
@@ -2847,7 +2893,7 @@
               },
               customization: {
                   visual: {
-                      style: { theme: 'flat' } // Você pode mudar para 'dark' ou 'flat' depois se quiser!
+                      style: { theme: 'flat' } 
                   },
                   paymentMethods: {
                       maxInstallments: 4 
