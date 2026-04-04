@@ -498,12 +498,7 @@
       }
       @media (min-width: 768px) {
         .painel-usuario {
-          left: 50%;
-          transform: translateX(-50%);
-          width: auto;
-          max-width: 1000px;
-          border-radius: 15px 15px 0 0;
-          gap: 24px;
+          display: none;
         }
       }
       .btn-login {
@@ -1850,6 +1845,24 @@
               btnVerMais = `<button class="btn-ver-mais" onclick="expandirDescricao(this)">Ver mais</button>`
             }
 
+            // NOVA LÓGICA DE EXIBIÇÃO DE PREÇOS (Ovos de Páscoa)
+            let precoExibicao = p.valorUnitario;
+            let prefixoPreco = "";
+            try {
+              let ops = p.opcionais ? JSON.parse(p.opcionais) : [];
+              let temAddonPago = ops.some(g => g.itens.some(i => parseFloat(i.preco) > 0));
+              
+              if (p.valorUnitario === 0 && ops.length > 0) {
+                let gObrig = ops.find(g => g.obrigatorio);
+                if (gObrig && gObrig.itens.length > 0) {
+                  precoExibicao = Math.min(...gObrig.itens.map(i => parseFloat(i.preco) || 0));
+                  prefixoPreco = "<span style='font-size:0.65em; color:#888; display:block; font-weight:normal; margin-bottom:-4px;'>A partir de</span>";
+                }
+              } else if (temAddonPago) {
+                prefixoPreco = "<span style='font-size:0.65em; color:#888; display:block; font-weight:normal; margin-bottom:-4px;'>A partir de</span>";
+              }
+            } catch(e) {}
+
             htmlSecao += `
                 <div class="doce-item">
                     <img src="${urlImg}" class="doce-img" onclick="abrirImagemFullScreen('${urlImg}')">
@@ -1860,12 +1873,8 @@
                           ${btnVerMais}
                         </div>
                         <div class="doce-footer">
-                            <span class="doce-preco">R$ ${p.valorUnitario
-                              .toFixed(2)
-                              .replace('.', ',')}</span>
-                            <button class="btn-pedir" onclick="prepararPedido(${
-                              p.id
-                            })">Pedir</button>
+                            <span class="doce-preco">${prefixoPreco}R$ ${precoExibicao.toFixed(2).replace('.', ',')}</span>
+                            <button class="btn-pedir" onclick="prepararPedido(${p.id})">Pedir</button>
                         </div>
                     </div>
                 </div>`
@@ -1965,10 +1974,16 @@
           let htmlItens = ''
           grupo.itens.forEach((item, iIndex) => {
             const idUnico = `opt_${gIndex}_${iIndex}`
-            const precoTexto =
-              item.preco > 0
-                ? `+ R$ ${item.preco.toFixed(2).replace('.', ',')}`
-                : ''
+            
+            // NOVA LÓGICA DE PREÇOS NO MODAL
+            let precoTexto = ''
+            if (item.preco > 0) {
+              if (produtoSelecionadoTemp.valorUnitario === 0 && grupo.obrigatorio && gIndex === 0) {
+                precoTexto = `R$ ${item.preco.toFixed(2).replace('.', ',')}`
+              } else {
+                precoTexto = `+ R$ ${item.preco.toFixed(2).replace('.', ',')}`
+              }
+            }
 
             if (grupo.tipo === 'simples' || grupo.tipo === 'multipla') {
               const tipoInput = grupo.tipo === 'simples' ? 'radio' : 'checkbox'
