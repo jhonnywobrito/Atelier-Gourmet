@@ -2,6 +2,7 @@
 <html lang="pt-br">
   <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
     <link id="favicon" rel="icon" type="image/x-icon" href="" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -988,6 +989,19 @@
       </button>
     </div>
 
+    <div id="modalPagamentoCartao" class="modal">
+      <div class="modal-content" style="max-width: 500px; padding: 20px;">
+        <span class="close" onclick="fecharModal('modalPagamentoCartao')">&times;</span>
+        <h3 style="color: #5d4037; text-align: center; margin-bottom: 10px;">Pagamento Seguro</h3>
+        <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px;">
+          <i class="fa-solid fa-lock"></i> Seus dados estão protegidos pelo Mercado Pago
+        </p>
+        
+        <div id="cardPaymentBrick_container"></div>
+        
+      </div>
+    </div>
+
     <div class="modal-overlay" id="modalLogin">
       <div class="modal-content">
         <h2 style="color: var(--marrom); margin-top: 0">Identifique-se</h2>
@@ -1233,89 +1247,31 @@
             🛵 Entrega
           </button>
         </div>
-        <div
-          id="divEnderecoEntrega"
-          style="
-            display: none;
-            text-align: left;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-          "
-        >
+        <div id="divEnderecoEntrega" style="display: none; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
           <h4 style="margin: 0 0 10px 0">📍 Onde vamos entregar?</h4>
-          <input
-            type="text"
-            id="inputCep"
-            placeholder="CEP"
-            oninput="lidarInputCep(this)"
-            maxlength="8"
-          />
-          <span
-            id="msgErroCep"
-            style="color: #e74c3c; font-size: 0.85em; display: none"
-            >CEP não encontrado.</span
-          >
-          <input
-            type="text"
-            id="inputRua"
-            placeholder="Rua / Avenida"
-            disabled3
-            oninput="verificarCamposEntrega()"
-          />
+          <input type="text" id="inputCep" placeholder="CEP" oninput="lidarInputCep(this)" maxlength="8" />
+          <span id="msgErroCep" style="color: #e74c3c; font-size: 0.85em; display: none">CEP não encontrado.</span>
+          <input type="text" id="inputRua" placeholder="Rua / Avenida" disabled oninput="verificarCamposEntrega()" />
           <div style="display: flex; gap: 10px">
-            <input
-              type="text"
-              id="inputNumero"
-              placeholder="Nº"
-              style="width: 30%"
-              disabled
-              oninput="verificarCamposEntrega()"
-            /><input
-              type="text"
-              id="inputBairro"
-              placeholder="Bairro"
-              style="width: 70%"
-              disabled
-              oninput="verificarCamposEntrega()"
-            />
+            <input type="text" id="inputNumero" placeholder="Nº" style="width: 30%" disabled oninput="verificarCamposEntrega()" />
+            <input type="text" id="inputBairro" placeholder="Bairro" style="width: 70%" disabled oninput="verificarCamposEntrega()" />
           </div>
           <input type="text" id="inputCidade" placeholder="Cidade" disabled />
+          
+          <h4 style="margin: 15px 0 10px 0">💳 Forma de Pagamento</h4>
+          <label><input type="radio" name="formaPagamentoEntrega" value="PIX_AGORA" checked /> Pagar com Pix agora</label><br />
+          <label><input type="radio" name="formaPagamentoEntrega" value="CARTAO_CREDITO" /> Pagar com Cartão de Crédito</label>
         </div>
-        <div
-          id="divEnderecoRetirada"
-          style="
-            display: block;
-            text-align: left;
-            background: #e8f8f5;
-            padding: 15px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #27ae60;
-          "
-        >
+          <input type="text" id="inputCidade" placeholder="Cidade" disabled />
+        </div>
+        <div id="divEnderecoRetirada" style="display: block; text-align: left; background: #e8f8f5; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #27ae60;">
           <p style="margin-top: 0">
             📍 <b>Endereço:</b> Rua Verônica Vitória, 95 - Suzano - SP
           </p>
           <h4 style="margin: 10px 0">💳 Forma de Pagamento</h4>
-          <label
-            ><input
-              type="radio"
-              name="formaPagamentoRetirada"
-              value="PIX_AGORA"
-              checked
-            />
-            Pagar com Pix agora</label
-          ><br />
-          <label
-            ><input
-              type="radio"
-              name="formaPagamentoRetirada"
-              value="NO_LOCAL"
-            />
-            Pagar na retirada</label
-          >
+          <label><input type="radio" name="formaPagamentoRetirada" value="PIX_AGORA" checked /> Pagar com Pix agora</label><br />
+          <label><input type="radio" name="formaPagamentoRetirada" value="CARTAO_CREDITO" /> Pagar com Cartão de Crédito</label><br />
+          <label><input type="radio" name="formaPagamentoRetirada" value="NO_LOCAL" /> Pagar na retirada</label>
         </div>
         <button
           type="button"
@@ -2386,10 +2342,6 @@
           btnFinalizar.style.pointerEvents = 'auto'
         }
 
-        // =========================================================================
-        // NOVA LÓGICA DE PAGAMENTO: CHAMADA PARA O JAVA (MERCADO PAGO)
-        // =========================================================================
-
         let enderecoFinal = '';
         let taxaCobrada = 0;
 
@@ -2446,10 +2398,17 @@
           const pedidoSalvo = await resPedido.json();
           const idPedidoReal = pedidoSalvo.id;
 
-          const formaPagamento = tipoEntregaAtual === 'ENTREGA' ? 'PIX_AGORA' : document.querySelector('input[name="formaPagamentoRetirada"]:checked').value;
+          // --- NOVA LÓGICA DE DETECÇÃO DE PAGAMENTO ---
+          let formaPagamento = '';
+          if (tipoEntregaAtual === 'ENTREGA') {
+              const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
+              formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA'; // Default de segurança
+          } else {
+              const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
+              formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL'; // Default de segurança
+          }
 
           if (formaPagamento === 'PIX_AGORA') {
-             
               const pedidoDTO = {
                   id: idPedidoReal,
                   total: valorTotal
@@ -2487,18 +2446,28 @@
                   }, 350);
 
               } else {
-                  // AQUI ESTÁ A MÁGICA: Lendo o erro que o Java enviou
                   const erroNoJava = await resPix.json();
-                  
-                  // Joga o motivo na cara do usuário (e na nossa, para debugar!)
                   alert("⚠️ O Mercado Pago recusou o Pix. Motivo: \n" + erroNoJava.erro_motivo);
-                  
-                  // Destrava o botão de finalizar pedido
                   resetBtn();
                   throw new Error("Erro ao gerar Pix no Mercado Pago.");
               }
 
+          // --- NOVA ROTA: SE FOR CARTÃO DE CRÉDITO ---
+          } else if (formaPagamento === 'CARTAO_CREDITO') {
+              
+              fecharModal('modalCarrinho'); // Fecha a sacola
+              resetBtn(); // Destrava o botão
+              
+              // O email é obrigatório no cartão. Se o usuário não tiver email salvo, criamos um de controle.
+              const emailParaCartao = usuarioLogado.email || `cliente_${idPedidoReal}@ateliergourmet.com`;
+              
+              // Chama o formulário mágico do Mercado Pago
+              setTimeout(() => {
+                  abrirPagamentoCartao(valorTotal, idPedidoReal, emailParaCartao);
+              }, 350);
+
           } else {
+              // --- ROTA ANTIGA: PAGAMENTO NO LOCAL ---
               await fetch(`${PEDIDOS_URL}/${idPedidoReal}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${usuarioLogado.token}` },
@@ -2859,6 +2828,83 @@
         verificarPedidoAtivo()
       })
 
+      const mp = new MercadoPago('APP_USR-36349551-c024-4839-bcd3-43472a36238f', { locale: 'pt-BR' });
+      const bricksBuilder = mp.bricks();
+      let cardPaymentBrickController;
+
+      async function abrirPagamentoCartao(valorTotal, idPedidoReal, emailCliente) {
+          abrirModal('modalPagamentoCartao');
+          
+          if (cardPaymentBrickController) {
+              cardPaymentBrickController.unmount();
+          }
+
+          const settings = {
+              initialization: {
+                  amount: valorTotal, 
+                  payer: {
+                      email: emailCliente,
+                  },
+              },
+              customization: {
+                  visual: {
+                      style: { theme: 'default' } // Você pode mudar para 'dark' ou 'flat' depois se quiser!
+                  },
+                  paymentMethods: {
+                      maxInstallments: 3 
+                  }
+              },
+              callbacks: {
+                  onReady: () => {
+                      console.log("Formulário de cartão pronto!");
+                  },
+                  onSubmit: (cardFormData) => {
+                      return new Promise(async (resolve, reject) => {
+                          try {
+                              const pedidoDTO = {
+                                  id: idPedidoReal,
+                                  total: cardFormData.transaction_amount,
+                                  tokenCartao: cardFormData.token, 
+                                  parcelas: cardFormData.installments,
+                                  metodoPagamento: cardFormData.payment_method_id
+                              };
+
+                              const resCartao = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/cartao`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify(pedidoDTO)
+                              });
+
+                              const respostaJava = await resCartao.json();
+
+                              if (resCartao.ok && (respostaJava.status_pagamento === 'approved' || respostaJava.status_pagamento === 'in_process')) {
+                                  alert("🎉 Pagamento Aprovado com Sucesso!");
+                                  fecharModal('modalPagamentoCartao');
+                                  abrirModalAcompanhamento();
+                                  resolve();
+                              } else {
+                                  alert("⚠️ O cartão foi recusado. Motivo: " + (respostaJava.motivo_rejeicao || respostaJava.erro_motivo));
+                                  reject();
+                              }
+                          } catch (error) {
+                              alert("Erro ao conectar com o servidor.");
+                              reject();
+                          }
+                      });
+                  },
+                  onError: (error) => {
+                      console.error("Erro no Brick:", error);
+                  },
+              },
+          };
+          
+          window.cardPaymentBrickController = await bricksBuilder.create(
+              'cardPayment',
+              'cardPaymentBrick_container',
+              settings
+          );
+      }
+
       let pollInterval = null;
       function iniciarVerificacaoPagamento(idPedidoReal) {
           const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
@@ -2866,13 +2912,11 @@
           
           pollInterval = setInterval(async () => {
               try {
-                  // Pergunta pro servidor o status do último pedido do cliente
                   const res = await fetch(`${PEDIDOS_URL}/cliente/${uLogado.whatsapp}`);
                   if (res.ok) {
                       const p = await res.json();
-                      // Se o status mudou para algo diferente de AGUARDANDO_PAGAMENTO, o webhook funcionou!
                       if (p.id === idPedidoReal && p.status !== 'AGUARDANDO_PAGAMENTO') {
-                          clearInterval(pollInterval); // Para de perguntar
+                          clearInterval(pollInterval);
                           alert("🎉 Pagamento Confirmado! O pedido acabou de apitar na cozinha.");
                           fecharModal('modalPagamentoPix');
                           localStorage.removeItem('pixPayloadPendente');
