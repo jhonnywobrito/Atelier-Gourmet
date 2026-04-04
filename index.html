@@ -104,7 +104,7 @@
         object-fit: cover;
         border: 5px solid white;
         box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25),
-                    inset 0 1px 3px rgba(255, 255, 255, 0.3);
+          inset 0 1px 3px rgba(255, 255, 255, 0.3);
         margin-bottom: 15px;
         transition: var(--transition);
         flex-shrink: 0;
@@ -112,7 +112,7 @@
       .logo-loja:hover {
         transform: translateY(-8px) scale(1.05);
         box-shadow: 0 18px 45px rgba(0, 0, 0, 0.3),
-                    inset 0 1px 3px rgba(255, 255, 255, 0.3);
+          inset 0 1px 3px rgba(255, 255, 255, 0.3);
       }
       .nome-loja {
         text-align: center;
@@ -1028,15 +1028,26 @@
     </div>
 
     <div id="modalPagamentoCartao" class="modal-overlay">
-      <div class="modal-content" style="max-width: 500px; padding: 20px;">
-        <span class="close" onclick="fecharModal('modalPagamentoCartao')">&times;</span>
-        <h3 style="color: #5d4037; text-align: center; margin-bottom: 10px;">Pagamento Seguro</h3>
-        <p style="text-align: center; color: #666; font-size: 0.9em; margin-bottom: 20px;">
-          <i class="fa-solid fa-lock"></i> Seus dados estão protegidos pelo Mercado Pago
+      <div class="modal-content" style="max-width: 500px; padding: 20px">
+        <span class="close" onclick="fecharModal('modalPagamentoCartao')"
+          >&times;</span
+        >
+        <h3 style="color: #5d4037; text-align: center; margin-bottom: 10px">
+          Pagamento Seguro
+        </h3>
+        <p
+          style="
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+          "
+        >
+          <i class="fa-solid fa-lock"></i> Seus dados estão protegidos pelo
+          Mercado Pago
         </p>
-        
+
         <div id="cardPaymentBrick_container"></div>
-        
       </div>
     </div>
 
@@ -1098,6 +1109,15 @@
           onclick="reabrirModalPix()"
         >
           <i class="fa-brands fa-pix"></i> Visualizar Código Pix
+        </button>
+
+        <button
+          id="btnReabrirCartao"
+          class="btn-confirmar"
+          style="background-color: #e67e22; display: none; margin-bottom: 10px"
+          onclick="reabrirModalCartao()"
+        >
+          <i class="fa-regular fa-credit-card"></i> Pagar com Cartão
         </button>
         <button class="btn-fechar" onclick="fecharModal('modalAcompanhar')">
           Fechar
@@ -1265,9 +1285,7 @@
             "
           >
             <span>Taxa Cartão de Crédito (5%):</span
-            ><span id="valorTaxaCartao" style="font-weight: bold"
-              >R$ 0,00</span
-            >
+            ><span id="valorTaxaCartao" style="font-weight: bold">R$ 0,00</span>
           </div>
           <div
             class="total-carrinho"
@@ -1300,29 +1318,117 @@
           </button>
         </div>
 
-        <div id="divEnderecoEntrega" style="display: none; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+        <div
+          id="divEnderecoEntrega"
+          style="
+            display: none;
+            text-align: left;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+          "
+        >
           <h4 style="margin: 0 0 10px 0">📍 Onde vamos entregar?</h4>
-          <input type="text" id="inputCep" placeholder="CEP" oninput="lidarInputCep(this)" maxlength="8" />
-          <span id="msgErroCep" style="color: #e74c3c; font-size: 0.85em; display: none">CEP não encontrado.</span>
-          <input type="text" id="inputRua" placeholder="Rua / Avenida" disabled oninput="verificarCamposEntrega()" />
+          <input
+            type="text"
+            id="inputCep"
+            placeholder="CEP"
+            oninput="lidarInputCep(this)"
+            maxlength="8"
+          />
+          <span
+            id="msgErroCep"
+            style="color: #e74c3c; font-size: 0.85em; display: none"
+            >CEP não encontrado.</span
+          >
+          <input
+            type="text"
+            id="inputRua"
+            placeholder="Rua / Avenida"
+            disabled
+            oninput="verificarCamposEntrega()"
+          />
           <div style="display: flex; gap: 10px">
-            <input type="text" id="inputNumero" placeholder="Nº" style="width: 30%" disabled oninput="verificarCamposEntrega()" />
-            <input type="text" id="inputBairro" placeholder="Bairro" style="width: 70%" disabled oninput="verificarCamposEntrega()" />
+            <input
+              type="text"
+              id="inputNumero"
+              placeholder="Nº"
+              style="width: 30%"
+              disabled
+              oninput="verificarCamposEntrega()"
+            />
+            <input
+              type="text"
+              id="inputBairro"
+              placeholder="Bairro"
+              style="width: 70%"
+              disabled
+              oninput="verificarCamposEntrega()"
+            />
           </div>
           <input type="text" id="inputCidade" placeholder="Cidade" disabled />
-          
+
           <h4 style="margin: 15px 0 10px 0">💳 Forma de Pagamento</h4>
-          <label><input type="radio" name="formaPagamentoEntrega" value="PIX_AGORA" checked /> Pagar com Pix agora</label><br />
-          <label><input type="radio" name="formaPagamentoEntrega" value="CARTAO_CREDITO" /> Pagar com Cartão de Crédito</label>
+          <label
+            ><input
+              type="radio"
+              name="formaPagamentoEntrega"
+              value="PIX_AGORA"
+              checked
+            />
+            Pagar com Pix agora</label
+          ><br />
+          <label
+            ><input
+              type="radio"
+              name="formaPagamentoEntrega"
+              value="CARTAO_CREDITO"
+            />
+            Pagar com Cartão de Crédito</label
+          >
         </div>
-        <div id="divEnderecoRetirada" style="display: block; text-align: left; background: #e8f8f5; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #27ae60;">
+        <div
+          id="divEnderecoRetirada"
+          style="
+            display: block;
+            text-align: left;
+            background: #e8f8f5;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #27ae60;
+          "
+        >
           <p style="margin-top: 0">
             📍 <b>Endereço:</b> Rua Verônica Vitória, 95 - Suzano - SP
           </p>
           <h4 style="margin: 10px 0">💳 Forma de Pagamento</h4>
-          <label><input type="radio" name="formaPagamentoRetirada" value="PIX_AGORA" checked /> Pagar com Pix agora</label><br />
-          <label><input type="radio" name="formaPagamentoRetirada" value="CARTAO_CREDITO" /> Pagar com Cartão de Crédito</label><br />
-          <label><input type="radio" name="formaPagamentoRetirada" value="NO_LOCAL" /> Pagar na retirada</label>
+          <label
+            ><input
+              type="radio"
+              name="formaPagamentoRetirada"
+              value="PIX_AGORA"
+              checked
+            />
+            Pagar com Pix agora</label
+          ><br />
+          <label
+            ><input
+              type="radio"
+              name="formaPagamentoRetirada"
+              value="CARTAO_CREDITO"
+            />
+            Pagar com Cartão de Crédito</label
+          ><br />
+          <label
+            ><input
+              type="radio"
+              name="formaPagamentoRetirada"
+              value="NO_LOCAL"
+            />
+            Pagar na retirada</label
+          >
         </div>
         <button
           type="button"
@@ -1542,10 +1648,7 @@
             horariosGlobaisLoja = adminReal.horarios || '{}'
             const msgStatus =
               adminReal.mensagemStatus || 'Bem-vindo ao nosso cardápio!'
-            nomeLojaGlobal =
-              adminReal.nome.toLowerCase() === 'admin'
-                ? 'Bia Oliveira'
-                : adminReal.nome
+            nomeLojaGlobal = 'Bia Oliveira'
             document.title = `Cardápio - ${nomeLojaGlobal}`
 
             if (!localStorage.getItem('atelierUsuario'))
@@ -2036,13 +2139,21 @@
         }
 
         // Detectar forma de pagamento selecionada
-        let formaPagamentaSelecionada = '';
+        let formaPagamentaSelecionada = ''
         if (tipoEntregaAtual === 'ENTREGA') {
-          const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
-          formaPagamentaSelecionada = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA';
+          const opcaoEntrega = document.querySelector(
+            'input[name="formaPagamentoEntrega"]:checked'
+          )
+          formaPagamentaSelecionada = opcaoEntrega
+            ? opcaoEntrega.value
+            : 'PIX_AGORA'
         } else {
-          const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
-          formaPagamentaSelecionada = opcaoRetirada ? opcaoRetirada.value : 'PIX_AGORA';
+          const opcaoRetirada = document.querySelector(
+            'input[name="formaPagamentoRetirada"]:checked'
+          )
+          formaPagamentaSelecionada = opcaoRetirada
+            ? opcaoRetirada.value
+            : 'PIX_AGORA'
         }
 
         // Calcular taxa de entrega
@@ -2064,24 +2175,28 @@
         }
 
         // Calcular taxa de cartão de crédito (5%)
-        let subtotalComEntrega = isentoDeTaxa ? valorSubtotalAtual : valorSubtotalAtual + (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0);
-        
+        let subtotalComEntrega = isentoDeTaxa
+          ? valorSubtotalAtual
+          : valorSubtotalAtual +
+            (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0)
+
         if (formaPagamentaSelecionada === 'CARTAO_CREDITO') {
-          taxaCartaoAtual = subtotalComEntrega * 0.05;
+          taxaCartaoAtual = subtotalComEntrega * 0.05
           document.getElementById('linhaTaxaCartao').style.display = 'flex'
-          document.getElementById('valorTaxaCartao').innerText = `R$ ${taxaCartaoAtual.toFixed(2).replace('.', ',')}`
+          document.getElementById(
+            'valorTaxaCartao'
+          ).innerText = `R$ ${taxaCartaoAtual.toFixed(2).replace('.', ',')}`
         } else {
-          taxaCartaoAtual = 0;
+          taxaCartaoAtual = 0
           document.getElementById('linhaTaxaCartao').style.display = 'none'
         }
 
         // Calcular total final
-        let totalFinal = subtotalComEntrega + taxaCartaoAtual;
+        let totalFinal = subtotalComEntrega + taxaCartaoAtual
         document.getElementById(
           'valorTotalCarrinho'
         ).innerText = `Total: R$ ${totalFinal.toFixed(2).replace('.', ',')}`
       }
-
 
       function esvaziarCarrinho() {
         if (confirm('Deseja remover todos os itens da sacola?')) {
@@ -2308,15 +2423,20 @@
           }
 
           if (latCliente) {
-            let distanciaCalculada = calcularDistanciaKM(LOJA_LAT, LOJA_LNG, latCliente, lngCliente);
-            
+            let distanciaCalculada = calcularDistanciaKM(
+              LOJA_LAT,
+              LOJA_LNG,
+              latCliente,
+              lngCliente
+            )
+
             if (distanciaCalculada > 30) {
-              throw new Error('DISTANCIA_EXCEDIDA');
+              throw new Error('DISTANCIA_EXCEDIDA')
             }
 
-            taxaEntregaAtual = calcularFrete(distanciaCalculada);
-            iNumero.disabled = false;
-            
+            taxaEntregaAtual = calcularFrete(distanciaCalculada)
+            iNumero.disabled = false
+
             if (!rua) {
               iRua.disabled = false
               iRua.placeholder = 'Qual sua rua?'
@@ -2327,17 +2447,17 @@
               iBairro.placeholder = 'Qual seu bairro?'
             }
             if (!cidade) iCidade.disabled = false
-            
           } else throw new Error('Região não mapeada')
         } catch (e) {
           msgErro.style.display = 'block'
-          
+
           if (e.message === 'DISTANCIA_EXCEDIDA') {
-            msgErro.innerHTML = 'Infelizmente você está fora da nossa área de entrega (máx 30km). <br>Por favor, selecione <b>Retirada na Loja</b>!';
+            msgErro.innerHTML =
+              'Infelizmente você está fora da nossa área de entrega (máx 30km). <br>Por favor, selecione <b>Retirada na Loja</b>!'
           } else {
-            msgErro.innerText = 'CEP não encontrado.';
+            msgErro.innerText = 'CEP não encontrado.'
           }
-          
+
           taxaEntregaAtual = 0
           iRua.value = iBairro.value = iCidade.value = iNumero.value = ''
         } finally {
@@ -2391,7 +2511,8 @@
         const btnFinalizar = document.getElementById('btnFinalizarPedido')
         const textoOriginalBtn = btnFinalizar.innerText
         btnFinalizar.disabled = true
-        btnFinalizar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
+        btnFinalizar.innerHTML =
+          '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
         btnFinalizar.style.opacity = '0.7'
         btnFinalizar.style.pointerEvents = 'none'
 
@@ -2399,19 +2520,24 @@
         let valorTotal = 0
         let itensResumoDB = ''
 
-        let temAdicional = pedidoAtivoExistente && (pedidoAtivoExistente.status === 'PENDENTE' || pedidoAtivoExistente.status === 'PREPARANDO')
+        let temAdicional =
+          pedidoAtivoExistente &&
+          (pedidoAtivoExistente.status === 'PENDENTE' ||
+            pedidoAtivoExistente.status === 'PREPARANDO')
 
         if (temAdicional) {
           itensResumoDB += `🚨 *ADICIONAL AO PEDIDO #${pedidoAtivoExistente.id}* (Em preparo)\n\n`
         }
 
         carrinho.forEach(item => {
-          let precoUnidadeComOpcoes = item.precoCalculadoUnitario || item.produto.valorUnitario
+          let precoUnidadeComOpcoes =
+            item.precoCalculadoUnitario || item.produto.valorUnitario
           let subtotal = item.quantidade * precoUnidadeComOpcoes
           valorTotal += subtotal
 
           itensResumoDB += `${item.quantidade}x ${item.produto.nome} (${item.produto.categoria})\n`
-          if (item.complementosTexto) itensResumoDB += `${item.complementosTexto}\n`
+          if (item.complementosTexto)
+            itensResumoDB += `${item.complementosTexto}\n`
           if (item.observacao) itensResumoDB += `   (Obs: ${item.observacao})\n`
         })
 
@@ -2422,8 +2548,8 @@
           btnFinalizar.style.pointerEvents = 'auto'
         }
 
-        let enderecoFinal = '';
-        let taxaCobrada = 0;
+        let enderecoFinal = ''
+        let taxaCobrada = 0
 
         if (tipoEntregaAtual === 'ENTREGA') {
           const cep = document.getElementById('inputCep').value
@@ -2438,17 +2564,21 @@
             return
           }
 
-          let isentoTx = temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
+          let isentoTx =
+            temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
           taxaCobrada = isentoTx ? 0 : taxaEntregaAtual
           valorTotal += taxaCobrada
 
-          if (taxaCobrada > 0) itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada.toFixed(2).replace('.', ',')}\n`
-          else if (isentoTx) itensResumoDB += `\n🛵 Taxa de Entrega: ISENTA (Pedido #${pedidoAtivoExistente.id})\n`
+          if (taxaCobrada > 0)
+            itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada
+              .toFixed(2)
+              .replace('.', ',')}\n`
+          else if (isentoTx)
+            itensResumoDB += `\n🛵 Taxa de Entrega: ISENTA (Pedido #${pedidoAtivoExistente.id})\n`
 
-          enderecoFinal = `${r}, ${n} - ${b}, ${c} (CEP: ${cep})`;
-
+          enderecoFinal = `${r}, ${n} - ${b}, ${c} (CEP: ${cep})`
         } else {
-          enderecoFinal = `RETIRADA NA LOJA`;
+          enderecoFinal = `RETIRADA NA LOJA`
         }
 
         pedidoPendenteTemp = {
@@ -2457,124 +2587,152 @@
           endereco: enderecoFinal,
           itensResumo: itensResumoDB,
           total: valorTotal,
-          cep: document.getElementById('inputCep') ? document.getElementById('inputCep').value : '',
-          rua: document.getElementById('inputRua') ? document.getElementById('inputRua').value : '',
-          numero: document.getElementById('inputNumero') ? document.getElementById('inputNumero').value : '',
-          bairro: document.getElementById('inputBairro') ? document.getElementById('inputBairro').value : '',
-          cidade: document.getElementById('inputCidade') ? document.getElementById('inputCidade').value : ''
+          cep: document.getElementById('inputCep')
+            ? document.getElementById('inputCep').value
+            : '',
+          rua: document.getElementById('inputRua')
+            ? document.getElementById('inputRua').value
+            : '',
+          numero: document.getElementById('inputNumero')
+            ? document.getElementById('inputNumero').value
+            : '',
+          bairro: document.getElementById('inputBairro')
+            ? document.getElementById('inputBairro').value
+            : '',
+          cidade: document.getElementById('inputCidade')
+            ? document.getElementById('inputCidade').value
+            : ''
         }
 
-        // Detectar forma de pagamento e aplicar taxa de cartão se necessário
-        let formaPagamento = '';
+        let formaPagamento = ''
         if (tipoEntregaAtual === 'ENTREGA') {
-          const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked');
-          formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA';
+          const opcaoEntrega = document.querySelector(
+            'input[name="formaPagamentoEntrega"]:checked'
+          )
+          formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA'
         } else {
-          const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked');
-          formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL';
+          const opcaoRetirada = document.querySelector(
+            'input[name="formaPagamentoRetirada"]:checked'
+          )
+          formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL'
         }
 
-        // Aplicar taxa de 5% para cartão de crédito
         if (formaPagamento === 'CARTAO_CREDITO') {
-          let taxaCartao = valorTotal * 0.05;
-          valorTotal += taxaCartao;
-          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao.toFixed(2).replace('.', ',')}\n`;
-          pedidoPendenteTemp.total = valorTotal;
-          pedidoPendenteTemp.itensResumo = itensResumoDB;
+          let taxaCartao = valorTotal * 0.05
+          valorTotal += taxaCartao
+          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao
+            .toFixed(2)
+            .replace('.', ',')}\n`
+          pedidoPendenteTemp.total = valorTotal
+          pedidoPendenteTemp.itensResumo = itensResumoDB
         }
 
         try {
-          pedidoPendenteTemp.status = "AGUARDANDO_PAGAMENTO"; 
+          // Define o status inicial dependendo da escolha
+          pedidoPendenteTemp.status = formaPagamento === 'NO_LOCAL' ? 'PENDENTE' : 'AGUARDANDO_PAGAMENTO'
 
           const resPedido = await fetch(PEDIDOS_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pedidoPendenteTemp)
-          });
-          
-          if (!resPedido.ok) throw new Error("Erro ao salvar pedido no banco.");
-          
-          const pedidoSalvo = await resPedido.json();
-          const idPedidoReal = pedidoSalvo.id;
+          })
 
-          // formaPagamento já foi detectada antes e a taxa de cartão foi aplicada se necessário
+          if (!resPedido.ok) throw new Error('Erro ao salvar pedido no banco.')
+
+          const pedidoSalvo = await resPedido.json()
+          const idPedidoReal = pedidoSalvo.id
+
+          // EXIBIR BOTÃO ACOMPANHAR IMEDIATAMENTE (Cobre fechamento acidental)
+          localStorage.setItem('pedidoAtivoWhatsApp', usuarioLogado.whatsapp)
+          document.getElementById('btnAcompanharFloat').style.display = 'block'
+          pedidoAtivoExistente = pedidoSalvo
+
           if (formaPagamento === 'PIX_AGORA') {
-              const pedidoDTO = {
-                  id: idPedidoReal,
-                  total: valorTotal
-              };
+            // LIMPANDO MEMÓRIA ANTIGA DO CARTÃO:
+            localStorage.removeItem('cartaoPendenteData')
 
-              const resPix = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/pix`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify(pedidoDTO)
-              });
+            const pedidoDTO = {
+              id: idPedidoReal,
+              total: valorTotal
+            }
 
-              if (resPix.ok) {
-                  const pixData = await resPix.json();
-                  
-                  const pay = pixData.copia_e_cola;
-                  const qrCodeBase64 = pixData.qr_code_base64;
-                  const idPagamentoMp = pixData.id_pagamento_mp;
-
-                  const vFmt = valorTotal.toFixed(2);
-
-                  localStorage.setItem('pixPayloadPendente', pay);
-                  localStorage.setItem('pixValorPendente', vFmt);
-                  localStorage.setItem('idPagamentoMP', idPagamentoMp);
-
-                  document.getElementById('valorPixTela').innerText = `R$ ${vFmt.replace('.', ',')}`;
-                  document.getElementById('textoCopiaECola').value = pay;
-                  
-                  document.getElementById('qrcodePix').innerHTML = `<img src="data:image/png;base64,${qrCodeBase64}" width="180" height="180"/>`;
-
-                  fecharModal('modalCarrinho');
-                  setTimeout(() => {
-                    resetBtn();
-                    abrirModal('modalPagamentoPix');
-                    iniciarVerificacaoPagamento(idPedidoReal); 
-                  }, 350);
-
-              } else {
-                  const erroNoJava = await resPix.json();
-                  alert("⚠️ O Mercado Pago recusou o Pix. Motivo: \n" + erroNoJava.erro_motivo);
-                  resetBtn();
-                  throw new Error("Erro ao gerar Pix no Mercado Pago.");
+            const resPix = await fetch(
+              `https://ateliergourmet.duckdns.org/api/pagamentos/pix`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pedidoDTO)
               }
+            )
 
-          // --- NOVA ROTA: SE FOR CARTÃO DE CRÉDITO ---
-          } else if (formaPagamento === 'CARTAO_CREDITO') {
-              
-              fecharModal('modalCarrinho'); // Fecha a sacola
-              resetBtn(); // Destrava o botão
-              
-              // O email é obrigatório no cartão. Se o usuário não tiver email salvo, criamos um de controle.
-              const emailParaCartao = usuarioLogado.email || `cliente_${idPedidoReal}@ateliergourmet.com`;
-              
-              // Chama o formulário mágico do Mercado Pago
+            if (resPix.ok) {
+              const pixData = await resPix.json()
+
+              const pay = pixData.copia_e_cola
+              const qrCodeBase64 = pixData.qr_code_base64
+              const idPagamentoMp = pixData.id_pagamento_mp
+
+              const vFmt = valorTotal.toFixed(2)
+
+              localStorage.setItem('pixPayloadPendente', pay)
+              localStorage.setItem('pixValorPendente', vFmt)
+              localStorage.setItem('idPagamentoMP', idPagamentoMp)
+
+              document.getElementById(
+                'valorPixTela'
+              ).innerText = `R$ ${vFmt.replace('.', ',')}`
+              document.getElementById('textoCopiaECola').value = pay
+
+              document.getElementById(
+                'qrcodePix'
+              ).innerHTML = `<img src="data:image/png;base64,${qrCodeBase64}" width="180" height="180"/>`
+
+              fecharModal('modalCarrinho')
               setTimeout(() => {
-                  abrirPagamentoCartao(valorTotal, idPedidoReal, emailParaCartao);
-              }, 350);
+                resetBtn()
+                abrirModal('modalPagamentoPix')
+                iniciarVerificacaoPagamento(idPedidoReal)
+              }, 350)
+            } else {
+              const erroNoJava = await resPix.json()
+              alert(
+                '⚠️ O Mercado Pago recusou o Pix. Motivo: \n' +
+                  erroNoJava.erro_motivo
+              )
+              resetBtn()
+              throw new Error('Erro ao gerar Pix no Mercado Pago.')
+            }
 
+          } else if (formaPagamento === 'CARTAO_CREDITO') {
+            fecharModal('modalCarrinho') 
+            resetBtn() 
+
+            // LIMPANDO MEMÓRIA ANTIGA DO PIX:
+            localStorage.removeItem('pixPayloadPendente')
+            localStorage.removeItem('pixValorPendente')
+
+            // SALVA OS DADOS PARA REABRIR O MODAL SE O CLIENTE FECHAR
+            localStorage.setItem('cartaoPendenteData', JSON.stringify({id: idPedidoReal, total: valorTotal}))
+
+            const emailParaCartao =
+              usuarioLogado.email ||
+              `cliente_${idPedidoReal}@ateliergourmet.com`
+
+            setTimeout(() => {
+              abrirPagamentoCartao(valorTotal, idPedidoReal, emailParaCartao)
+            }, 350)
           } else {
-              // --- ROTA ANTIGA: PAGAMENTO NO LOCAL ---
-              await fetch(`${PEDIDOS_URL}/${idPedidoReal}/status`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${usuarioLogado.token}` },
-                body: JSON.stringify({ status: 'PENDENTE' })
-              });
-
-              resetBtn();
-              finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL');
+            // Pagamento no Local - Já nasceu PENDENTE no banco
+            resetBtn()
+            finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL')
           }
-
         } catch (error) {
-           console.error(error);
-           alert("Ocorreu um erro ao processar o seu pedido. Tente novamente.");
-           resetBtn();
+          console.error(error)
+          alert('Ocorreu um erro ao processar o seu pedido. Tente novamente.')
+          resetBtn()
         }
       }
-      
+
       function copiarPix() {
         const t = document.getElementById('textoCopiaECola')
         t.select()
@@ -2588,11 +2746,7 @@
         localStorage.setItem('pedidoAtivoWhatsApp', uLogado.whatsapp)
 
         try {
-          await fetch(PEDIDOS_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedidoPendenteTemp)
-          })
+          // Apenas atualiza o endereço, o pedido já foi POSTADO
           await fetch(`${BASE_URL}/usuarios/${uLogado.id}/endereco`, {
             method: 'PATCH',
             headers: {
@@ -2656,15 +2810,8 @@
         if (tipoPagamento !== 'PIX_AGORA') {
           localStorage.removeItem('pixPayloadPendente')
           localStorage.removeItem('pixValorPendente')
+          localStorage.removeItem('cartaoPendenteData')
         }
-
-        try {
-          await fetch(PEDIDOS_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pedidoPendenteTemp)
-          })
-        } catch (e) {}
 
         let txtPagamento =
           tipoPagamento === 'PIX_AGORA'
@@ -2853,6 +3000,8 @@
           .querySelectorAll('.status-step')
           .forEach(el => el.classList.remove('ativo'))
         const t = document.getElementById('textoStatusFinal')
+        const stepPendente = document.getElementById('step_PENDENTE')
+
         if (e.includes('RETIRADA')) {
           t.innerHTML =
             'Pronto para Retirada!<br><small style="font-weight:normal; color:#888;">Venha buscar</small>'
@@ -2869,25 +3018,41 @@
             'fa-solid fa-motorcycle status-icone'
         }
 
-        document.getElementById('btnReabrirPix').style.display =
-          localStorage.getItem('pixPayloadPendente') ? 'block' : 'none'
+        const btnPix = document.getElementById('btnReabrirPix')
+        const btnCartao = document.getElementById('btnReabrirCartao')
+        if(btnPix) btnPix.style.display = 'none'
+        if(btnCartao) btnCartao.style.display = 'none'
 
-        if (s === 'PENDENTE')
-          document.getElementById('step_PENDENTE').classList.add('ativo')
-        else if (s === 'PREPARANDO') {
-          document.getElementById('step_PENDENTE').classList.add('ativo')
-          document.getElementById('step_PREPARANDO').classList.add('ativo')
-        } else if (s === 'SAIU_ENTREGA' || s === 'PRONTO_RETIRADA') {
-          document.getElementById('step_PENDENTE').classList.add('ativo')
-          document.getElementById('step_PREPARANDO').classList.add('ativo')
-          document.getElementById('step_A_CAMINHO').classList.add('ativo')
-        } else if (s === 'CONCLUIDO') {
-          localStorage.removeItem('pedidoAtivoWhatsApp')
-          localStorage.removeItem('pixPayloadPendente')
-          localStorage.removeItem('pixValorPendente')
-          document.getElementById('btnAcompanharFloat').style.display = 'none'
-          fecharModal('modalAcompanhar')
-          alert('Pedido concluído! Obrigado.')
+        if (s === 'AGUARDANDO_PAGAMENTO') {
+          stepPendente.innerHTML = '<i class="fa-solid fa-money-bill-wave status-icone" style="color: #e74c3c;"></i><div style="color: #e74c3c; font-weight: bold;">Aguardando Pagamento<br><small style="font-weight: normal; color: #e74c3c;">Finalize para a cozinha preparar</small></div>'
+          stepPendente.classList.add('ativo')
+          
+          if (localStorage.getItem('pixPayloadPendente') && btnPix) {
+            btnPix.style.display = 'block'
+          } else if (localStorage.getItem('cartaoPendenteData') && btnCartao) {
+            btnCartao.style.display = 'block'
+          }
+        } else {
+          stepPendente.innerHTML = '<i class="fa-regular fa-clock status-icone"></i><div>Pedido Recebido<br><small style="font-weight: normal; color: #888">Aguardando confirmação</small></div>'
+
+          if (s === 'PENDENTE')
+            stepPendente.classList.add('ativo')
+          else if (s === 'PREPARANDO') {
+            stepPendente.classList.add('ativo')
+            document.getElementById('step_PREPARANDO').classList.add('ativo')
+          } else if (s === 'SAIU_ENTREGA' || s === 'PRONTO_RETIRADA') {
+            stepPendente.classList.add('ativo')
+            document.getElementById('step_PREPARANDO').classList.add('ativo')
+            document.getElementById('step_A_CAMINHO').classList.add('ativo')
+          } else if (s === 'CONCLUIDO') {
+            localStorage.removeItem('pedidoAtivoWhatsApp')
+            localStorage.removeItem('pixPayloadPendente')
+            localStorage.removeItem('pixValorPendente')
+            localStorage.removeItem('cartaoPendenteData')
+            document.getElementById('btnAcompanharFloat').style.display = 'none'
+            fecharModal('modalAcompanhar')
+            alert('Pedido concluído! Obrigado.')
+          }
         }
       }
 
@@ -2913,117 +3078,157 @@
         setTimeout(() => abrirModal('modalPagamentoPix'), 350)
       }
 
+      function reabrirModalCartao() {
+        const dataStr = localStorage.getItem('cartaoPendenteData')
+        if (!dataStr) return
+        const data = JSON.parse(dataStr)
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+        
+        fecharModal('modalAcompanhar')
+        
+        setTimeout(() => {
+          abrirPagamentoCartao(data.total, data.id, uLogado.email || `cliente_${data.id}@ateliergourmet.com`)
+        }, 350)
+      }
+
       document.addEventListener('DOMContentLoaded', () => {
         verificarSeAdmin()
         verificarPedidoAtivo()
-        
-        // Adicionar listeners para formas de pagamento
-        const botoesFormaPagamento = document.querySelectorAll('input[name="formaPagamentoEntrega"], input[name="formaPagamentoRetirada"]');
+
+        const botoesFormaPagamento = document.querySelectorAll(
+          'input[name="formaPagamentoEntrega"], input[name="formaPagamentoRetirada"]'
+        )
         botoesFormaPagamento.forEach(botao => {
-          botao.addEventListener('change', atualizarExibicaoTotaisCarrinho);
-        });
+          botao.addEventListener('change', atualizarExibicaoTotaisCarrinho)
+        })
       })
 
-      const mp = new MercadoPago('APP_USR-36349551-c024-4839-bcd3-43472a36238f', { locale: 'pt-BR' });
-      const bricksBuilder = mp.bricks();
-      let cardPaymentBrickController;
+      const mp = new MercadoPago(
+        'APP_USR-36349551-c024-4839-bcd3-43472a36238f',
+        { locale: 'pt-BR' }
+      )
+      const bricksBuilder = mp.bricks()
+      let cardPaymentBrickController
 
-      async function abrirPagamentoCartao(valorTotal, idPedidoReal, emailCliente) {
-          abrirModal('modalPagamentoCartao');
-          
-          if (cardPaymentBrickController) {
-              cardPaymentBrickController.unmount();
+      async function abrirPagamentoCartao(
+        valorTotal,
+        idPedidoReal,
+        emailCliente
+      ) {
+        abrirModal('modalPagamentoCartao')
+
+        if (cardPaymentBrickController) {
+          cardPaymentBrickController.unmount()
+        }
+
+        const settings = {
+          initialization: {
+            amount: valorTotal,
+            payer: {
+              email: emailCliente
+            }
+          },
+          customization: {
+            visual: {
+              style: { theme: 'default' }
+            },
+            paymentMethods: {
+              maxInstallments: 6
+            }
+          },
+          callbacks: {
+            onReady: () => {
+              console.log('Formulário de cartão pronto!')
+            },
+            onSubmit: cardFormData => {
+              return new Promise(async (resolve, reject) => {
+                try {
+                  const pedidoDTO = {
+                    id: idPedidoReal,
+                    total: cardFormData.transaction_amount,
+                    tokenCartao: cardFormData.token,
+                    parcelas: cardFormData.installments,
+                    metodoPagamento: cardFormData.payment_method_id
+                  }
+
+                  const resCartao = await fetch(
+                    `https://ateliergourmet.duckdns.org/api/pagamentos/cartao`,
+                    {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(pedidoDTO)
+                    }
+                  )
+
+                  const respostaJava = await resCartao.json()
+
+                  if (
+                    resCartao.ok &&
+                    (respostaJava.status_pagamento === 'approved' ||
+                      respostaJava.status_pagamento === 'in_process')
+                  ) {
+                    localStorage.removeItem('cartaoPendenteData')
+                    
+                    alert('🎉 Pagamento Aprovado com Sucesso!')
+                    fecharModal('modalPagamentoCartao')
+                    abrirModalAcompanhamento()
+                    resolve()
+                  } else {
+                    alert(
+                      '⚠️ O cartão foi recusado. Motivo: ' +
+                        (respostaJava.motivo_rejeicao ||
+                          respostaJava.erro_motivo)
+                    )
+                    reject()
+                  }
+                } catch (error) {
+                  alert('Erro ao conectar com o servidor.')
+                  reject()
+                }
+              })
+            },
+            onError: error => {
+              console.error('Erro no Brick:', error)
+            }
           }
+        }
 
-          const settings = {
-              initialization: {
-                  amount: valorTotal, 
-                  payer: {
-                      email: emailCliente,
-                  },
-              },
-              customization: {
-                  visual: {
-                      style: { theme: 'default' } 
-                  },
-                  paymentMethods: {
-                      maxInstallments: 6 
-                  }
-              },
-              callbacks: {
-                  onReady: () => {
-                      console.log("Formulário de cartão pronto!");
-                  },
-                  onSubmit: (cardFormData) => {
-                      return new Promise(async (resolve, reject) => {
-                          try {
-                              const pedidoDTO = {
-                                  id: idPedidoReal,
-                                  total: cardFormData.transaction_amount,
-                                  tokenCartao: cardFormData.token, 
-                                  parcelas: cardFormData.installments,
-                                  metodoPagamento: cardFormData.payment_method_id
-                              };
-
-                              const resCartao = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/cartao`, {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify(pedidoDTO)
-                              });
-
-                              const respostaJava = await resCartao.json();
-
-                              if (resCartao.ok && (respostaJava.status_pagamento === 'approved' || respostaJava.status_pagamento === 'in_process')) {
-                                  alert("🎉 Pagamento Aprovado com Sucesso!");
-                                  fecharModal('modalPagamentoCartao');
-                                  abrirModalAcompanhamento();
-                                  resolve();
-                              } else {
-                                  alert("⚠️ O cartão foi recusado. Motivo: " + (respostaJava.motivo_rejeicao || respostaJava.erro_motivo));
-                                  reject();
-                              }
-                          } catch (error) {
-                              alert("Erro ao conectar com o servidor.");
-                              reject();
-                          }
-                      });
-                  },
-                  onError: (error) => {
-                      console.error("Erro no Brick:", error);
-                  },
-              },
-          };
-          
-          window.cardPaymentBrickController = await bricksBuilder.create(
-              'cardPayment',
-              'cardPaymentBrick_container',
-              settings
-          );
+        window.cardPaymentBrickController = await bricksBuilder.create(
+          'cardPayment',
+          'cardPaymentBrick_container',
+          settings
+        )
       }
 
-      let pollInterval = null;
+      let pollInterval = null
       function iniciarVerificacaoPagamento(idPedidoReal) {
-          const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
-          if(pollInterval) clearInterval(pollInterval);
-          
-          pollInterval = setInterval(async () => {
-              try {
-                  const res = await fetch(`${PEDIDOS_URL}/cliente/${uLogado.whatsapp}`);
-                  if (res.ok) {
-                      const p = await res.json();
-                      if (p.id === idPedidoReal && p.status !== 'AGUARDANDO_PAGAMENTO') {
-                          clearInterval(pollInterval);
-                          alert("🎉 Pagamento Confirmado! O pedido acabou de apitar na cozinha.");
-                          fecharModal('modalPagamentoPix');
-                          localStorage.removeItem('pixPayloadPendente');
-                          localStorage.removeItem('pixValorPendente');
-                          abrirModalAcompanhamento();
-                      }
-                  }
-              } catch(e){}
-          }, 5000); // Pergunta a cada 5 segundos
+        const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+        if (pollInterval) clearInterval(pollInterval)
+
+        pollInterval = setInterval(async () => {
+          try {
+            const res = await fetch(
+              `${PEDIDOS_URL}/cliente/${uLogado.whatsapp}`
+            )
+            if (res.ok) {
+              const p = await res.json()
+              if (
+                p.id === idPedidoReal &&
+                p.status !== 'AGUARDANDO_PAGAMENTO'
+              ) {
+                clearInterval(pollInterval)
+                alert(
+                  '🎉 Pagamento Confirmado! O pedido acabou de apitar na cozinha.'
+                )
+                fecharModal('modalPagamentoPix')
+                localStorage.removeItem('pixPayloadPendente')
+                localStorage.removeItem('pixValorPendente')
+                abrirModalAcompanhamento()
+              }
+            }
+          } catch (e) {}
+        }, 5000)
       }
-      
     </script>
   </body>
 </html>

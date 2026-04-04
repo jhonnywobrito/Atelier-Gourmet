@@ -106,11 +106,11 @@
     <div id="listaPedidos">Carregando pedidos...</div>
 
     <script>
-            const BASE_URL = 'https://ateliergourmet.duckdns.org'
+      const BASE_URL = 'https://ateliergourmet.duckdns.org'
       const API_URL = `${BASE_URL}/pedidos`
 
       let alertasAtivos = false
-      let ultimoIdConhecido = 0
+      let idsConhecidosPendentes = new Set() 
       let primeiraCarga = true
       let todosPedidosGlobal = []
       let timerTempoDecorrido = null
@@ -122,8 +122,7 @@
         .then(data => { adminContatoGlobal = data.whatsapp || "Não cadastrado"; })
         .catch(err => console.log("Erro ao buscar whatsapp"));
 
-      // ==========================================
-      // FUNÇÃO INTELIGENTE DE IMPRESSÃO (CORRIGIDA)
+      // FUNÇÃO INTELIGENTE DE IMPRESSÃO
       // ==========================================
       function imprimirPedido(id) {
         const p = todosPedidosGlobal.find(ped => ped.id === id);
@@ -131,28 +130,31 @@
 
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         const lojaTel = adminContatoGlobal || "Telefone não cadastrado";
+        const enderecoSeguro = p.endereco || "Não informado";
+        const itensSeguros = p.itensResumo || "Sem itens";
+        const totalSeguro = p.total || 0;
+        const nomeSeguro = p.clienteNome || "Cliente Não Identificado";
+        const zapSeguro = p.clienteWhatsapp || "Não informado";
 
         if (isMobile) {
-          // --- CELULAR (RawBT) ---
-          let recibo = "[C]<b>BIA OLIVEIRA</b>\n";
-          recibo += "[C]<b>ATELIER GOURMET</b>\n";
-          recibo += `[C]WhatsApp: ${lojaTel}\n`;
-          recibo += `[C]<b>PEDIDO #${p.id}</b>\n`;
-          recibo += "[C]--------------------------\n"; 
-          recibo += `[L]<b>Cliente:</b> ${p.clienteNome}\n`;
-          recibo += `[L]<b>WhatsApp:</b> ${p.clienteWhatsapp}\n`;
-          recibo += `[L]<b>Endereço:</b> ${p.endereco}\n`;
-          recibo += "[C]--------------------------\n";
-          recibo += `[L]${p.itensResumo.trim()}\n`;
-          recibo += "[C]--------------------------\n";
-          recibo += `[R]<b>TOTAL: R$ ${p.total.toFixed(2).replace('.', ',')}</b>\n`;
-          recibo += "[L]\n[L]\n[L]\n"; 
+          let recibo = "[C]<b>BIA OLIVEIRA</b>\\n";
+          recibo += "[C]<b>ATELIER GOURMET</b>\\n";
+          recibo += `[C]WhatsApp: ${lojaTel}\\n`;
+          recibo += `[C]<b>PEDIDO #${p.id}</b>\\n`;
+          recibo += "[C]--------------------------\\n"; 
+          recibo += `[L]<b>Cliente:</b> ${nomeSeguro}\\n`;
+          recibo += `[L]<b>WhatsApp:</b> ${zapSeguro}\\n`;
+          recibo += `[L]<b>Endereço:</b> ${enderecoSeguro}\\n`;
+          recibo += "[C]--------------------------\\n";
+          recibo += `[L]${itensSeguros.trim()}\\n`;
+          recibo += "[C]--------------------------\\n";
+          recibo += `[R]<b>TOTAL: R$ ${totalSeguro.toFixed(2).replace('.', ',')}</b>\\n`;
+          recibo += "[L]\\n[L]\\n[L]\\n"; 
 
           const textoCodificado = encodeURIComponent(recibo);
           window.location.href = `intent:${textoCodificado}#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;`;
 
         } else {
-          // --- COMPUTADOR (Google Chrome) ---
           let iframe = document.getElementById('frameImpressao');
           if (!iframe) {
               iframe = document.createElement('iframe');
@@ -161,58 +163,50 @@
               document.body.appendChild(iframe);
           }
 
-          // Ajustes: 58mm totais, margens corrigidas e quebra de palavras longas
           const htmlCupom = `
-              <!DOCTYPE html>
-              <html>
-              <head>
-                  <style>
-                      @page { margin: 0; size: 58mm auto; }
-                      body { 
-                          font-family: Arial, Helvetica, sans-serif; 
-                          width: 44mm;
-                          text-align: left;
-                          padding: 0.5;
-                          margin: 0;
-                          color: #000;
-                          font-size: 9px; 
-                      }
-                      h3 { margin: 0; text-align: center; font-size: 12px; }
-                      .centro { text-align: center; }
-                      .linha { border-top: 1px solid #000; margin: 6px 0; }
-                      .bold { font-weight: bold; }
-                      .direita { text-align: right; font-size: 9px; }
-                      p { margin: 2px 0; }
-                      .resumo-itens {
-                          white-space: pre-wrap; 
-                          font-size: 9px; 
-                          word-break: break-word; /* Quebra palavras muito compridas */
-                      }
-                  </style>
-              </head>
-              <body>
-                  <h3>BIA OLIVEIRA</h3>
-                  <h3>ATELIER GOURMET</h3>
-                  <p class="centro" style="font-size: 9px; margin-bottom: 5px;">WhatsApp: ${lojaTel}</p>
-                  <p class="centro bold">PEDIDO #${p.id}</p>
-                  
-                  <div class="linha"></div>
-                  
-                  <p><span class="bold">Cliente:</span> ${p.clienteNome}</p>
-                  <p><span class="bold">WhatsApp:</span> ${p.clienteWhatsapp}</p>
-                  <p><span class="bold">End.:</span> ${p.endereco}</p>
-                  
-                  <div class="linha"></div>
-                  
-                  <div class="resumo-itens">${p.itensResumo.trim()}</div>
-                  
-                  <div class="linha"></div>
-                  
-                  <p class="direita bold">TOTAL: R$ ${p.total.toFixed(2).replace('.', ',')}</p>
-                  
-                  <br><br><br>
-              </body>
-              </html>
+              <style>
+                  @page { margin: 0; size: 58mm auto; }
+                  body { 
+                      font-family: Arial, Helvetica, sans-serif; 
+                      width: 44mm;
+                      text-align: left;
+                      padding: 0.5;
+                      margin: 0;
+                      color: #000;
+                      font-size: 9px; 
+                  }
+                  h3 { margin: 0; text-align: center; font-size: 12px; }
+                  .centro { text-align: center; }
+                  .linha { border-top: 1px solid #000; margin: 6px 0; }
+                  .bold { font-weight: bold; }
+                  .direita { text-align: right; font-size: 9px; }
+                  p { margin: 2px 0; }
+                  .resumo-itens {
+                      white-space: pre-wrap; 
+                      font-size: 9px; 
+                      word-break: break-word;
+                  }
+              </style>
+              <h3>BIA OLIVEIRA</h3>
+              <h3>ATELIER GOURMET</h3>
+              <p class="centro" style="font-size: 9px; margin-bottom: 5px;">WhatsApp: ${lojaTel}</p>
+              <p class="centro bold">PEDIDO #${p.id}</p>
+              
+              <div class="linha"></div>
+              
+              <p><span class="bold">Cliente:</span> ${nomeSeguro}</p>
+              <p><span class="bold">WhatsApp:</span> ${zapSeguro}</p>
+              <p><span class="bold">End.:</span> ${enderecoSeguro}</p>
+              
+              <div class="linha"></div>
+              
+              <div class="resumo-itens">${itensSeguros.trim()}</div>
+              
+              <div class="linha"></div>
+              
+              <p class="direita bold">TOTAL: R$ ${totalSeguro.toFixed(2).replace('.', ',')}</p>
+              
+              <br><br><br>
           `;
 
           const doc = iframe.contentWindow.document;
@@ -326,16 +320,31 @@
           }
           container.innerHTML = ''
 
-          let maiorIdAtual = Math.max(...pedidos.map(p => p.id))
-          if (!primeiraCarga && maiorIdAtual > ultimoIdConhecido && alertasAtivos) {
-            somNovoPedido.play().catch(e => console.log(e))
-            new Notification('Atelier Gourmet', {
-              body: '🚨 NOVO PEDIDO!',
-              icon: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png'
+          let tocouAlarme = false
+
+          if (primeiraCarga) {
+            pedidos.forEach(p => {
+              if (p.status !== 'AGUARDANDO_PAGAMENTO') {
+                idsConhecidosPendentes.add(p.id)
+              }
             })
+            primeiraCarga = false
+          } else {
+            pedidos.forEach(p => {
+              if (p.status !== 'AGUARDANDO_PAGAMENTO' && !idsConhecidosPendentes.has(p.id)) {
+                tocouAlarme = true
+                idsConhecidosPendentes.add(p.id)
+              }
+            })
+
+            if (tocouAlarme && alertasAtivos) {
+              somNovoPedido.play().catch(e => console.log(e))
+              new Notification('Atelier Gourmet', {
+                body: '🚨 PAGAMENTO CONFIRMADO / NOVO PEDIDO!',
+                icon: 'https://cdn-icons-png.flaticon.com/512/3500/3500833.png'
+              })
+            }
           }
-          ultimoIdConhecido = maiorIdAtual
-          primeiraCarga = false
 
           ;[...pedidos].reverse().forEach(p => {
             const timestampChegada = obterTimestampChegada(p)
@@ -343,6 +352,12 @@
             
             let status = p.status || 'PENDENTE'
             let classeCard = 'impresso', badge = '', botoes = ''
+
+            const enderecoSeguro = p.endereco || ''
+            const itensSeguros = p.itensResumo || ''
+            const totalSeguro = p.total || 0
+            const clienteNomeSeguro = p.clienteNome || 'Cliente Não Identificado'
+            const clienteZapSeguro = p.clienteWhatsapp || ''
 
             if (status === 'AGUARDANDO_PAGAMENTO') {
               classeCard = 'novo-pedido'
@@ -354,7 +369,7 @@
               botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PREPARANDO')">👨‍🍳 Iniciar Preparo</button>`
             } else if (status === 'PREPARANDO') {
               badge = '<span class="badge-status" style="background:#f39c12">🟡 PREPARANDO</span>'
-              if (p.endereco.includes('RETIRADA')) {
+              if (enderecoSeguro.includes('RETIRADA')) {
                 botoes += `<button class="btn-acao btn-pronto" onclick="atualizarStatus(${p.id}, 'PRONTO_RETIRADA')">🛍️ Pronto p/ Coleta</button>`
               } else {
                 botoes += `<button class="btn-acao btn-entrega" onclick="atualizarStatus(${p.id}, 'SAIU_ENTREGA')">🛵 Saiu p/ Entrega</button>`
@@ -375,13 +390,13 @@
             container.innerHTML += `
                 <div class="pedido-card ${classeCard}">
                     <div class="pedido-header">
-                        <span class="pedido-cliente">👤 ${p.clienteNome} (${p.clienteWhatsapp})</span>
+                        <span class="pedido-cliente">👤 ${clienteNomeSeguro} (${clienteZapSeguro})</span>
                         <div>${badge} <span style="background:#eee; padding:2px 8px; border-radius:10px; font-size:0.8em;">#${p.id}</span></div>
                     </div>
-                    <div class="pedido-end">📍 <b>Entregar em:</b> ${p.endereco}</div>
+                    <div class="pedido-end">📍 <b>Entregar em:</b> ${enderecoSeguro}</div>
                     <div class="pedido-tempo" data-chegada="${timestampChegada || ''}">⏱️ ${tempoDecorrido}</div>
-                    <div class="pedido-itens">${p.itensResumo}</div>
-                    <div class="pedido-total">R$ ${p.total.toFixed(2)}</div>
+                    <div class="pedido-itens">${itensSeguros}</div>
+                    <div class="pedido-total">R$ ${totalSeguro.toFixed(2).replace('.', ',')}</div>
                     <div class="botoes-container">${botoes}</div>
                 </div>
             `
@@ -395,6 +410,8 @@
       }
 
       async function atualizarStatus(id, novoStatus) {
+        idsConhecidosPendentes.add(id) 
+
         const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
         try {
           const res = await fetch(`${API_URL}/${id}/status`, {
@@ -449,6 +466,7 @@
       function exportarPedidosCSV() {
         if (todosPedidosGlobal.length === 0) { alert('Não há pedidos para exportar.'); return; }
         let csvContent = '\uFEFF'
+        
         csvContent += 'ID;Cliente;WhatsApp;Status;Total_Vendido;Endereco;Itens_Resumo\n'
 
         todosPedidosGlobal.forEach(p => {
@@ -456,9 +474,11 @@
             if (!texto) return '""'
             return `"${String(texto).replace(/"/g, '""').replace(/\n/g, ' - ')}"`
           }
+          const totalSeguro = p.total || 0;
+
           const linha = [
             p.id, limparTexto(p.clienteNome), limparTexto(p.clienteWhatsapp),
-            limparTexto(p.status || 'PENDENTE'), p.total.toFixed(2).replace('.', ','),
+            limparTexto(p.status || 'PENDENTE'), totalSeguro.toFixed(2).replace('.', ','),
             limparTexto(p.endereco), limparTexto(p.itensResumo)
           ].join(';')
           csvContent += linha + '\n'
