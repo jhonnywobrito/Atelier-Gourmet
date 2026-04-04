@@ -340,6 +340,10 @@
           ;[...pedidos].reverse().forEach(p => {
             const timestampChegada = obterTimestampChegada(p)
             const tempoDecorrido = formatarTempoDecorrido(timestampChegada)
+            
+            let status = p.status || 'PENDENTE'
+            let classeCard = 'impresso', badge = '', botoes = ''
+
             if (status === 'AGUARDANDO_PAGAMENTO') {
               classeCard = 'novo-pedido'
               badge = '<span class="badge-status" style="background:#e67e22">⏳ AGUARDANDO PIX</span>'
