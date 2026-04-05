@@ -1286,7 +1286,7 @@
               margin-bottom: 5px;
             "
           >
-            <span>Taxa Cartão de Crédito (5%):</span
+            <span>Taxa Cartão de Crédito (5,3%):</span
             ><span id="valorTaxaCartao" style="font-weight: bold">R$ 0,00</span>
           </div>
           <div
@@ -1538,7 +1538,7 @@
       const LOJA_URL = `${BASE_URL}/usuarios/loja`
       const PEDIDOS_URL = `${BASE_URL}/pedidos`
 
-      // 🔥 TRAVA NINJA DE ORDEM DAS CATEGORIAS 🔥
+      // -------------------------------  TRAVA DE ORDEM DAS CATEGORIAS ----------------------------
       const ORDEM_CATEGORIAS_VIP = [
         "Páscoa - Ovos de Colher Trufados",
         "Páscoa - Ovos Tablete Trufados",
@@ -2220,7 +2220,7 @@
           : valorSubtotalAtual + (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0)
 
         if (formaPagamentaSelecionada === 'CARTAO_CREDITO') {
-          taxaCartaoAtual = subtotalComEntrega * 0.05
+          taxaCartaoAtual = subtotalComEntrega * 0.053
           document.getElementById('linhaTaxaCartao').style.display = 'flex'
           document.getElementById(
             'valorTaxaCartao'
@@ -2561,10 +2561,10 @@
         }
 
         if (formaPagamento === 'CARTAO_CREDITO') {
-          let taxaCartao = valorTotal * 0.05
+          let taxaCartao = valorTotal * 0.053
           valorTotal += taxaCartao
           valorTotal = parseFloat(valorTotal.toFixed(2)) 
-          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao.toFixed(2).replace('.', ',')}\n`
+          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5,3%): R$ ${taxaCartao.toFixed(2).replace('.', ',')}\n`
           pedidoPendenteTemp.total = valorTotal
           pedidoPendenteTemp.itensResumo = itensResumoDB
         }
