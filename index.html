@@ -1538,6 +1538,17 @@
       const LOJA_URL = `${BASE_URL}/usuarios/loja`
       const PEDIDOS_URL = `${BASE_URL}/pedidos`
 
+      // 🔥 TRAVA NINJA DE ORDEM DAS CATEGORIAS 🔥
+      const ORDEM_CATEGORIAS_VIP = [
+        "Páscoa - Ovos de Colher Trufados",
+        "Páscoa - Ovos Tablete Trufados",
+        "Páscoa - Lembrancinhas",
+        "Copos da Felicidade",
+        "Cone Trufado",
+        "Bolos de Pote",
+        "Bolos"
+      ];
+
       const LOJA_LAT = -23.638167
       const LOJA_LNG = -46.326889
 
@@ -1782,10 +1793,17 @@
       }
 
       function gerarFiltros() {
-        const categorias = [
-          'Todos',
-          ...new Set(todosProdutos.map(p => p.categoria))
-        ]
+        const categoriasSet = new Set(todosProdutos.map(p => p.categoria));
+        
+        let categoriasOrdenadas = ORDEM_CATEGORIAS_VIP.filter(c => categoriasSet.has(c));
+        categoriasSet.forEach(c => {
+          if (!ORDEM_CATEGORIAS_VIP.includes(c)) {
+            categoriasOrdenadas.push(c);
+          }
+        });
+
+        const categorias = ['Todos', ...categoriasOrdenadas];
+        
         document.getElementById('filtros').innerHTML = categorias
           .map(
             cat =>
@@ -1831,7 +1849,16 @@
           return acc
         }, {})
 
-        for (const categoria in agrupados) {
+        let categoriasExibicao = Object.keys(agrupados);
+        categoriasExibicao.sort((a, b) => {
+          let posA = ORDEM_CATEGORIAS_VIP.indexOf(a);
+          let posB = ORDEM_CATEGORIAS_VIP.indexOf(b);
+          if (posA === -1) posA = 999;
+          if (posB === -1) posB = 999;
+          return posA - posB;
+        });
+
+        for (const categoria of categoriasExibicao) {
           let htmlSecao = `<div class="secao-titulo">${categoria}</div><div class="grid-produtos">`
           agrupados[categoria].forEach(p => {
             const urlImg = p.linkImagem
@@ -1847,7 +1874,6 @@
               btnVerMais = `<button class="btn-ver-mais" onclick="expandirDescricao(this)">Ver mais</button>`
             }
 
-            // NOVA LÓGICA DE EXIBIÇÃO DE PREÇOS (Ovos de Páscoa)
             let precoExibicao = p.valorUnitario;
             let prefixoPreco = "";
             try {
@@ -1977,7 +2003,6 @@
           grupo.itens.forEach((item, iIndex) => {
             const idUnico = `opt_${gIndex}_${iIndex}`
             
-            // NOVA LÓGICA DE PREÇOS NO MODAL
             let precoTexto = ''
             if (item.preco > 0) {
               if (produtoSelecionadoTemp.valorUnitario === 0 && grupo.obrigatorio && gIndex === 0) {
@@ -2160,25 +2185,19 @@
           avisoDiv.style.display = 'none'
         }
 
-        // Detectar forma de pagamento selecionada
         let formaPagamentaSelecionada = ''
         if (tipoEntregaAtual === 'ENTREGA') {
           const opcaoEntrega = document.querySelector(
             'input[name="formaPagamentoEntrega"]:checked'
           )
-          formaPagamentaSelecionada = opcaoEntrega
-            ? opcaoEntrega.value
-            : 'PIX_AGORA'
+          formaPagamentaSelecionada = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA'
         } else {
           const opcaoRetirada = document.querySelector(
             'input[name="formaPagamentoRetirada"]:checked'
           )
-          formaPagamentaSelecionada = opcaoRetirada
-            ? opcaoRetirada.value
-            : 'PIX_AGORA'
+          formaPagamentaSelecionada = opcaoRetirada ? opcaoRetirada.value : 'PIX_AGORA'
         }
 
-        // Calcular taxa de entrega
         if (tipoEntregaAtual === 'ENTREGA' && taxaEntregaAtual > 0) {
           document.getElementById('linhaTaxaEntrega').style.display = 'flex'
           if (isentoDeTaxa) {
@@ -2196,11 +2215,9 @@
           document.getElementById('linhaTaxaEntrega').style.display = 'none'
         }
 
-        // Calcular taxa de cartão de crédito (5%)
         let subtotalComEntrega = isentoDeTaxa
           ? valorSubtotalAtual
-          : valorSubtotalAtual +
-            (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0)
+          : valorSubtotalAtual + (tipoEntregaAtual === 'ENTREGA' ? taxaEntregaAtual : 0)
 
         if (formaPagamentaSelecionada === 'CARTAO_CREDITO') {
           taxaCartaoAtual = subtotalComEntrega * 0.05
@@ -2213,7 +2230,6 @@
           document.getElementById('linhaTaxaCartao').style.display = 'none'
         }
 
-        // Calcular total final
         let totalFinal = subtotalComEntrega + taxaCartaoAtual
         document.getElementById(
           'valorTotalCarrinho'
@@ -2230,9 +2246,7 @@
 
       async function abrirModalCarrinho() {
         document.getElementById('modalPagamentoPix')?.classList.remove('show')
-        document
-          .getElementById('modalLembreteComprovante')
-          ?.classList.remove('show')
+        document.getElementById('modalLembreteComprovante')?.classList.remove('show')
 
         await verificarPedidoAtivo()
         carregarEnderecoSalvo()
@@ -2247,28 +2261,16 @@
         } else {
           document.getElementById('btnEsvaziarCarrinho').style.display = 'block'
           carrinho.forEach((item, index) => {
-            let subtotal =
-              item.quantidade *
-              (item.precoCalculadoUnitario || item.produto.valorUnitario)
+            let subtotal = item.quantidade * (item.precoCalculadoUnitario || item.produto.valorUnitario)
             valorSubtotalAtual += subtotal
             let htmlComp = item.complementosTexto
-              ? `<p class="texto-complementos-carrinho">${item.complementosTexto.replace(
-                  /\n/g,
-                  '<br>'
-                )}</p>`
-              : ''
-            let htmlObs = item.observacao
-              ? `<p class="texto-obs-carrinho">Obs: ${item.observacao}</p>`
-              : ''
+              ? `<p class="texto-complementos-carrinho">${item.complementosTexto.replace(/\n/g, '<br>')}</p>` : ''
+            let htmlObs = item.observacao ? `<p class="texto-obs-carrinho">Obs: ${item.observacao}</p>` : ''
 
             containerLista.innerHTML += `
               <div class="item-carrinho">
                   <div class="item-info">
-                      <h4>${item.quantidade}x ${
-              item.produto.nome
-            } <small style="color: #888; font-weight: normal;">(${
-              item.produto.categoria
-            })</small></h4>
+                      <h4>${item.quantidade}x ${item.produto.nome} <small style="color: #888; font-weight: normal;">(${item.produto.categoria})</small></h4>
                       ${htmlComp}${htmlObs}
                       <p>R$ ${subtotal.toFixed(2)}</p>
                   </div>
@@ -2277,10 +2279,7 @@
           })
         }
 
-        if (
-          document.getElementById('inputCep').value.length === 8 &&
-          tipoEntregaAtual === 'ENTREGA'
-        )
+        if (document.getElementById('inputCep').value.length === 8 && tipoEntregaAtual === 'ENTREGA')
           buscarCep()
         else {
           taxaEntregaAtual = 0
@@ -2301,9 +2300,7 @@
       function lidarInputCep(el) {
         el.value = el.value.replace(/\D/g, '').substring(0, 8)
         if (el.value.length < 8) {
-          ;['inputRua', 'inputNumero', 'inputBairro', 'inputCidade'].forEach(
-            id => (document.getElementById(id).disabled = true)
-          )
+          ;['inputRua', 'inputNumero', 'inputBairro', 'inputCidade'].forEach(id => (document.getElementById(id).disabled = true))
           document.getElementById('msgErroCep').style.display = 'none'
           taxaEntregaAtual = 0
           atualizarExibicaoTotaisCarrinho()
@@ -2341,29 +2338,17 @@
       async function buscarCep() {
         const cep = document.getElementById('inputCep').value.replace(/\D/g, '')
         const msgErro = document.getElementById('msgErroCep')
-        const iRua = document.getElementById('inputRua'),
-          iBairro = document.getElementById('inputBairro'),
-          iCidade = document.getElementById('inputCidade'),
-          iNumero = document.getElementById('inputNumero')
+        const iRua = document.getElementById('inputRua'), iBairro = document.getElementById('inputBairro'), iCidade = document.getElementById('inputCidade'), iNumero = document.getElementById('inputNumero')
         const loading = document.getElementById('loadingOverlay')
 
         msgErro.style.display = 'none'
-        iRua.disabled =
-          iBairro.disabled =
-          iCidade.disabled =
-          iNumero.disabled =
-            true
+        iRua.disabled = iBairro.disabled = iCidade.disabled = iNumero.disabled = true
 
         if (cep.length !== 8) return
         loading.style.display = 'flex'
 
         try {
-          let rua = '',
-            bairro = '',
-            cidade = '',
-            latCliente = null,
-            lngCliente = null,
-            cepValido = false
+          let rua = '', bairro = '', cidade = '', latCliente = null, lngCliente = null, cepValido = false
 
           try {
             let resVia = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
@@ -2380,9 +2365,7 @@
 
           if (!cepValido) {
             try {
-              let resAwe = await fetch(
-                `https://cep.awesomeapi.com.br/json/${cep}`
-              )
+              let resAwe = await fetch(`https://cep.awesomeapi.com.br/json/${cep}`)
               if (resAwe.ok) {
                 let data = await resAwe.json()
                 if (!data.errors) {
@@ -2398,17 +2381,13 @@
           }
 
           if (!cepValido) {
-            let p3 = cep.substring(0, 3),
-              p4 = cep.substring(0, 4)
+            let p3 = cep.substring(0, 3), p4 = cep.substring(0, 4)
             if (p3 === '086') cidade = 'Suzano'
             else if (p3 === '087' || p3 === '088') cidade = 'Mogi das Cruzes'
             else if (p4 === '0855' || p4 === '0856') cidade = 'Poá'
-            else if (['0857', '0858', '0859'].includes(p4))
-              cidade = 'Itaquaquecetuba'
-            else if (['0850', '0853', '0854'].includes(p4))
-              cidade = 'Ferraz de Vasconcelos'
-            else if (['081', '082', '083', '084'].includes(p3))
-              cidade = 'São Paulo'
+            else if (['0857', '0858', '0859'].includes(p4)) cidade = 'Itaquaquecetuba'
+            else if (['0850', '0853', '0854'].includes(p4)) cidade = 'Ferraz de Vasconcelos'
+            else if (['081', '082', '083', '084'].includes(p3)) cidade = 'São Paulo'
             if (cidade) cepValido = true
           }
 
@@ -2419,19 +2398,10 @@
           iCidade.value = cidade
 
           if (!latCliente) {
-            let buscas = [
-              `${rua}, ${bairro}, ${cidade}, SP`,
-              `${rua}, ${cidade}, SP`,
-              `${bairro}, ${cidade}, SP`,
-              `${cidade}, SP`
-            ]
+            let buscas = [ `${rua}, ${bairro}, ${cidade}, SP`, `${rua}, ${cidade}, SP`, `${bairro}, ${cidade}, SP`, `${cidade}, SP` ]
             for (let q of buscas) {
               try {
-                let r = await fetch(
-                  `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-                    q
-                  )}&limit=1`
-                )
+                let r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`)
                 if (r.ok) {
                   let d = await r.json()
                   if (d.length > 0) {
@@ -2445,41 +2415,29 @@
           }
 
           if (latCliente) {
-            let distanciaCalculada = calcularDistanciaKM(
-              LOJA_LAT,
-              LOJA_LNG,
-              latCliente,
-              lngCliente
-            )
+            let distanciaCalculada = calcularDistanciaKM(LOJA_LAT, LOJA_LNG, latCliente, lngCliente)
 
-            if (distanciaCalculada > 30) {
-              throw new Error('DISTANCIA_EXCEDIDA')
-            }
+            if (distanciaCalculada > 30) throw new Error('DISTANCIA_EXCEDIDA')
 
             taxaEntregaAtual = calcularFrete(distanciaCalculada)
             iNumero.disabled = false
 
             if (!rua) {
-              iRua.disabled = false
-              iRua.placeholder = 'Qual sua rua?'
-              iRua.focus()
+              iRua.disabled = false; iRua.placeholder = 'Qual sua rua?'; iRua.focus()
             } else iNumero.focus()
+            
             if (!bairro) {
-              iBairro.disabled = false
-              iBairro.placeholder = 'Qual seu bairro?'
+              iBairro.disabled = false; iBairro.placeholder = 'Qual seu bairro?'
             }
             if (!cidade) iCidade.disabled = false
           } else throw new Error('Região não mapeada')
         } catch (e) {
           msgErro.style.display = 'block'
-
           if (e.message === 'DISTANCIA_EXCEDIDA') {
-            msgErro.innerHTML =
-              'Infelizmente você está fora da nossa área de entrega (máx 30km). <br>Por favor, selecione <b>Retirada na Loja</b>!'
+            msgErro.innerHTML = 'Infelizmente você está fora da nossa área de entrega (máx 30km). <br>Por favor, selecione <b>Retirada na Loja</b>!'
           } else {
             msgErro.innerText = 'CEP não encontrado.'
           }
-
           taxaEntregaAtual = 0
           iRua.value = iBairro.value = iCidade.value = iNumero.value = ''
         } finally {
@@ -2492,34 +2450,20 @@
       function carregarEnderecoSalvo() {
         const u = JSON.parse(localStorage.getItem('atelierUsuario'))
         if (u) {
-          ;[
-            'inputCep',
-            'inputRua',
-            'inputNumero',
-            'inputBairro',
-            'inputCidade'
-          ].forEach(id => {
-            document.getElementById(id).value =
-              u[id.replace('input', '').toLowerCase()] || ''
+          ;['inputCep', 'inputRua', 'inputNumero', 'inputBairro', 'inputCidade'].forEach(id => {
+            document.getElementById(id).value = u[id.replace('input', '').toLowerCase()] || ''
           })
         }
       }
 
       function escolherTipoEntrega(tipo) {
         tipoEntregaAtual = tipo
-        document
-          .getElementById('btnOpcaoEntrega')
-          .classList.toggle('active', tipo === 'ENTREGA')
-        document
-          .getElementById('btnOpcaoRetirada')
-          .classList.toggle('active', tipo === 'RETIRADA')
-        document.getElementById('divEnderecoEntrega').style.display =
-          tipo === 'ENTREGA' ? 'block' : 'none'
-        document.getElementById('divEnderecoRetirada').style.display =
-          tipo === 'RETIRADA' ? 'block' : 'none'
+        document.getElementById('btnOpcaoEntrega').classList.toggle('active', tipo === 'ENTREGA')
+        document.getElementById('btnOpcaoRetirada').classList.toggle('active', tipo === 'RETIRADA')
+        document.getElementById('divEnderecoEntrega').style.display = tipo === 'ENTREGA' ? 'block' : 'none'
+        document.getElementById('divEnderecoRetirada').style.display = tipo === 'RETIRADA' ? 'block' : 'none'
         if (tipo === 'RETIRADA') taxaEntregaAtual = 0
-        else if (document.getElementById('inputCep').value.length === 8)
-          buscarCep()
+        else if (document.getElementById('inputCep').value.length === 8) buscarCep()
         atualizarExibicaoTotaisCarrinho()
         verificarCamposEntrega()
       }
@@ -2533,8 +2477,7 @@
         const btnFinalizar = document.getElementById('btnFinalizarPedido')
         const textoOriginalBtn = btnFinalizar.innerText
         btnFinalizar.disabled = true
-        btnFinalizar.innerHTML =
-          '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
+        btnFinalizar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processando...'
         btnFinalizar.style.opacity = '0.7'
         btnFinalizar.style.pointerEvents = 'none'
 
@@ -2542,24 +2485,19 @@
         let valorTotal = 0
         let itensResumoDB = ''
 
-        let temAdicional =
-          pedidoAtivoExistente &&
-          (pedidoAtivoExistente.status === 'PENDENTE' ||
-            pedidoAtivoExistente.status === 'PREPARANDO')
+        let temAdicional = pedidoAtivoExistente && (pedidoAtivoExistente.status === 'PENDENTE' || pedidoAtivoExistente.status === 'PREPARANDO')
 
         if (temAdicional) {
           itensResumoDB += `🚨 *ADICIONAL AO PEDIDO #${pedidoAtivoExistente.id}* (Em preparo)\n\n`
         }
 
         carrinho.forEach(item => {
-          let precoUnidadeComOpcoes =
-            item.precoCalculadoUnitario || item.produto.valorUnitario
+          let precoUnidadeComOpcoes = item.precoCalculadoUnitario || item.produto.valorUnitario
           let subtotal = item.quantidade * precoUnidadeComOpcoes
           valorTotal += subtotal
 
           itensResumoDB += `${item.quantidade}x ${item.produto.nome} (${item.produto.categoria})\n`
-          if (item.complementosTexto)
-            itensResumoDB += `${item.complementosTexto}\n`
+          if (item.complementosTexto) itensResumoDB += `${item.complementosTexto}\n`
           if (item.observacao) itensResumoDB += `   (Obs: ${item.observacao})\n`
         })
 
@@ -2586,15 +2524,12 @@
             return
           }
 
-          let isentoTx =
-            temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
+          let isentoTx = temAdicional && pedidoAtivoExistente.endereco !== 'RETIRADA NA LOJA'
           taxaCobrada = isentoTx ? 0 : taxaEntregaAtual
           valorTotal += taxaCobrada
 
           if (taxaCobrada > 0)
-            itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada
-              .toFixed(2)
-              .replace('.', ',')}\n`
+            itensResumoDB += `\n🛵 Taxa de Entrega: R$ ${taxaCobrada.toFixed(2).replace('.', ',')}\n`
           else if (isentoTx)
             itensResumoDB += `\n🛵 Taxa de Entrega: ISENTA (Pedido #${pedidoAtivoExistente.id})\n`
 
@@ -2608,49 +2543,33 @@
           clienteWhatsapp: usuarioLogado.whatsapp,
           endereco: enderecoFinal,
           itensResumo: itensResumoDB,
-          total: valorTotal,
-          cep: document.getElementById('inputCep')
-            ? document.getElementById('inputCep').value
-            : '',
-          rua: document.getElementById('inputRua')
-            ? document.getElementById('inputRua').value
-            : '',
-          numero: document.getElementById('inputNumero')
-            ? document.getElementById('inputNumero').value
-            : '',
-          bairro: document.getElementById('inputBairro')
-            ? document.getElementById('inputBairro').value
-            : '',
-          cidade: document.getElementById('inputCidade')
-            ? document.getElementById('inputCidade').value
-            : ''
+          total: parseFloat(valorTotal.toFixed(2)),
+          cep: document.getElementById('inputCep') ? document.getElementById('inputCep').value : '',
+          rua: document.getElementById('inputRua') ? document.getElementById('inputRua').value : '',
+          numero: document.getElementById('inputNumero') ? document.getElementById('inputNumero').value : '',
+          bairro: document.getElementById('inputBairro') ? document.getElementById('inputBairro').value : '',
+          cidade: document.getElementById('inputCidade') ? document.getElementById('inputCidade').value : ''
         }
 
         let formaPagamento = ''
         if (tipoEntregaAtual === 'ENTREGA') {
-          const opcaoEntrega = document.querySelector(
-            'input[name="formaPagamentoEntrega"]:checked'
-          )
+          const opcaoEntrega = document.querySelector('input[name="formaPagamentoEntrega"]:checked')
           formaPagamento = opcaoEntrega ? opcaoEntrega.value : 'PIX_AGORA'
         } else {
-          const opcaoRetirada = document.querySelector(
-            'input[name="formaPagamentoRetirada"]:checked'
-          )
+          const opcaoRetirada = document.querySelector('input[name="formaPagamentoRetirada"]:checked')
           formaPagamento = opcaoRetirada ? opcaoRetirada.value : 'NO_LOCAL'
         }
 
         if (formaPagamento === 'CARTAO_CREDITO') {
           let taxaCartao = valorTotal * 0.05
           valorTotal += taxaCartao
-          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao
-            .toFixed(2)
-            .replace('.', ',')}\n`
+          valorTotal = parseFloat(valorTotal.toFixed(2)) 
+          itensResumoDB += `\n💳 Taxa Cartão de Crédito (5%): R$ ${taxaCartao.toFixed(2).replace('.', ',')}\n`
           pedidoPendenteTemp.total = valorTotal
           pedidoPendenteTemp.itensResumo = itensResumoDB
         }
 
         try {
-          // Define o status inicial dependendo da escolha
           pedidoPendenteTemp.status = formaPagamento === 'NO_LOCAL' ? 'PENDENTE' : 'AGUARDANDO_PAGAMENTO'
 
           const resPedido = await fetch(PEDIDOS_URL, {
@@ -2664,50 +2583,38 @@
           const pedidoSalvo = await resPedido.json()
           const idPedidoReal = pedidoSalvo.id
 
-          // EXIBIR BOTÃO ACOMPANHAR IMEDIATAMENTE (Cobre fechamento acidental)
           localStorage.setItem('pedidoAtivoWhatsApp', usuarioLogado.whatsapp)
           document.getElementById('btnAcompanharFloat').style.display = 'block'
           pedidoAtivoExistente = pedidoSalvo
 
           if (formaPagamento === 'PIX_AGORA') {
-            // LIMPANDO MEMÓRIA ANTIGA DO CARTÃO:
             localStorage.removeItem('cartaoPendenteData')
 
             const pedidoDTO = {
               id: idPedidoReal,
-              total: valorTotal
+              total: parseFloat(valorTotal.toFixed(2))
             }
 
-            const resPix = await fetch(
-              `https://ateliergourmet.duckdns.org/api/pagamentos/pix`,
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(pedidoDTO)
-              }
-            )
+            const resPix = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/pix`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(pedidoDTO)
+            })
 
             if (resPix.ok) {
               const pixData = await resPix.json()
-
               const pay = pixData.copia_e_cola
               const qrCodeBase64 = pixData.qr_code_base64
               const idPagamentoMp = pixData.id_pagamento_mp
-
               const vFmt = valorTotal.toFixed(2)
 
               localStorage.setItem('pixPayloadPendente', pay)
               localStorage.setItem('pixValorPendente', vFmt)
               localStorage.setItem('idPagamentoMP', idPagamentoMp)
 
-              document.getElementById(
-                'valorPixTela'
-              ).innerText = `R$ ${vFmt.replace('.', ',')}`
+              document.getElementById('valorPixTela').innerText = `R$ ${vFmt.replace('.', ',')}`
               document.getElementById('textoCopiaECola').value = pay
-
-              document.getElementById(
-                'qrcodePix'
-              ).innerHTML = `<img src="data:image/png;base64,${qrCodeBase64}" width="180" height="180"/>`
+              document.getElementById('qrcodePix').innerHTML = `<img src="data:image/png;base64,${qrCodeBase64}" width="180" height="180"/>`
 
               fecharModal('modalCarrinho')
               setTimeout(() => {
@@ -2717,10 +2624,7 @@
               }, 350)
             } else {
               const erroNoJava = await resPix.json()
-              alert(
-                '⚠️ O Mercado Pago recusou o Pix. Motivo: \n' +
-                  erroNoJava.erro_motivo
-              )
+              alert('⚠️ O Mercado Pago recusou o Pix. Motivo: \n' + erroNoJava.erro_motivo)
               resetBtn()
               throw new Error('Erro ao gerar Pix no Mercado Pago.')
             }
@@ -2729,22 +2633,17 @@
             fecharModal('modalCarrinho') 
             resetBtn() 
 
-            // LIMPANDO MEMÓRIA ANTIGA DO PIX:
             localStorage.removeItem('pixPayloadPendente')
             localStorage.removeItem('pixValorPendente')
 
-            // SALVA OS DADOS PARA REABRIR O MODAL SE O CLIENTE FECHAR
             localStorage.setItem('cartaoPendenteData', JSON.stringify({id: idPedidoReal, total: valorTotal}))
 
-            const emailParaCartao =
-              usuarioLogado.email ||
-              `cliente_${idPedidoReal}@ateliergourmet.com`
+            const emailParaCartao = usuarioLogado.email || `cliente_${idPedidoReal}@ateliergourmet.com`
 
             setTimeout(() => {
               abrirPagamentoCartao(valorTotal, idPedidoReal, emailParaCartao)
             }, 350)
           } else {
-            // Pagamento no Local - Já nasceu PENDENTE no banco
             resetBtn()
             finalizarPedidoRetirada(usuarioLogado, 'NO_LOCAL')
           }
@@ -2763,12 +2662,10 @@
       }
 
       async function finalizarAposPagamentoEntrega(uLogadoManual) {
-        const uLogado =
-          uLogadoManual || JSON.parse(localStorage.getItem('atelierUsuario'))
+        const uLogado = uLogadoManual || JSON.parse(localStorage.getItem('atelierUsuario'))
         localStorage.setItem('pedidoAtivoWhatsApp', uLogado.whatsapp)
 
         try {
-          // Apenas atualiza o endereço, o pedido já foi POSTADO
           await fetch(`${BASE_URL}/usuarios/${uLogado.id}/endereco`, {
             method: 'PATCH',
             headers: {
@@ -2793,26 +2690,14 @@
 
       function irParaWhatsAppEntrega() {
         const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        let txtL =
-          pedidoPendenteTemp.endereco === 'RETIRADA NA LOJA'
-            ? '🏬 *Retirada na Loja*'
-            : `📍 Entrega: ${pedidoPendenteTemp.endereco}`
+        let txtL = pedidoPendenteTemp.endereco === 'RETIRADA NA LOJA' ? '🏬 *Retirada na Loja*' : `📍 Entrega: ${pedidoPendenteTemp.endereco}`
         let pPix = localStorage.getItem('pixPayloadPendente')
         let txtPixMsg = ''
         if (pPix) {
           txtPixMsg = `\n\n========================================\n*🧾 CÓDIGO PIX (Copia e Cola):*\n\n${pPix}\n========================================\n\n_(Envie o comprovante abaixo!)_`
         }
 
-        let textoMsgBruto = `Olá, ${nomeLojaGlobal}! 🍬\nSou o(a) *${
-          uLogado.nome
-        }*\n${txtL}\n\n*PEDIDO:*\n${
-          pedidoPendenteTemp.itensResumo
-        }\n*Total: R$ ${pedidoPendenteTemp.total
-          .toFixed(2)
-          .replace(
-            '.',
-            ','
-          )}*${txtPixMsg}\n\n_Estou enviando o comprovante!_ 🧾`
+        let textoMsgBruto = `Olá, ${nomeLojaGlobal}! 🍬\nSou o(a) *${uLogado.nome}*\n${txtL}\n\n*PEDIDO:*\n${pedidoPendenteTemp.itensResumo}\n*Total: R$ ${pedidoPendenteTemp.total.toFixed(2).replace('.', ',')}*${txtPixMsg}\n\n_Estou enviando o comprovante!_ 🧾`
 
         let textoMsgEncoded = encodeURIComponent(textoMsgBruto)
 
@@ -2824,10 +2709,7 @@
         fecharModal('modalLembreteComprovante')
       }
 
-      async function finalizarPedidoRetirada(
-        uLogado,
-        tipoPagamento = 'NO_LOCAL'
-      ) {
+      async function finalizarPedidoRetirada(uLogado, tipoPagamento = 'NO_LOCAL') {
         localStorage.setItem('pedidoAtivoWhatsApp', uLogado.whatsapp)
         if (tipoPagamento !== 'PIX_AGORA') {
           localStorage.removeItem('pixPayloadPendente')
@@ -2835,23 +2717,14 @@
           localStorage.removeItem('cartaoPendenteData')
         }
 
-        let txtPagamento =
-          tipoPagamento === 'PIX_AGORA'
-            ? '🧾 Comprovante do Pix logo abaixo'
-            : '💵 Pagamento no Local'
+        let txtPagamento = tipoPagamento === 'PIX_AGORA' ? '🧾 Comprovante do Pix logo abaixo' : '💵 Pagamento no Local'
         let pPix = localStorage.getItem('pixPayloadPendente')
         let txtPixMsg = ''
         if (tipoPagamento === 'PIX_AGORA' && pPix) {
           txtPixMsg = `\n\n========================================\n*🧾 CÓDIGO PIX (Copia e Cola):*\n\npix:${pPix}\n========================================`
         }
 
-        let textoMsgBruto = `Olá, ${nomeLojaGlobal}! 🍬\nSou o(a) *${
-          uLogado.nome
-        }*\n🏬 *Retirada na Loja*\n${txtPagamento}\n\n*PEDIDO:*\n${
-          pedidoPendenteTemp.itensResumo
-        }\n*Total: R$ ${pedidoPendenteTemp.total
-          .toFixed(2)
-          .replace('.', ',')}*${txtPixMsg}`
+        let textoMsgBruto = `Olá, ${nomeLojaGlobal}! 🍬\nSou o(a) *${uLogado.nome}*\n🏬 *Retirada na Loja*\n${txtPagamento}\n\n*PEDIDO:*\n${pedidoPendenteTemp.itensResumo}\n*Total: R$ ${pedidoPendenteTemp.total.toFixed(2).replace('.', ',')}*${txtPixMsg}`
 
         let textoMsgEncoded = encodeURIComponent(textoMsgBruto)
 
@@ -2865,26 +2738,12 @@
       }
 
       function gerarPayloadPix(c, n, ci, v) {
-        const limp = s =>
-          s
-            .trim()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
+        const limp = s => s.trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         c = c.trim()
         n = limp(n)
         ci = limp(ci)
-        const m = `0014br.gov.bcb.pix01${c.length
-          .toString()
-          .padStart(2, '0')}${c}`
-        const p = `00020126${m.length
-          .toString()
-          .padStart(2, '0')}${m}52040000530398654${v.length
-          .toString()
-          .padStart(2, '0')}${v}5802BR59${Math.min(n.length, 25)
-          .toString()
-          .padStart(2, '0')}${n.substring(0, 25)}60${Math.min(ci.length, 15)
-          .toString()
-          .padStart(2, '0')}${ci.substring(0, 15)}62070503***6304`
+        const m = `0014br.gov.bcb.pix01${c.length.toString().padStart(2, '0')}${c}`
+        const p = `00020126${m.length.toString().padStart(2, '0')}${m}52040000530398654${v.length.toString().padStart(2, '0')}${v}5802BR59${Math.min(n.length, 25).toString().padStart(2, '0')}${n.substring(0, 25)}60${Math.min(ci.length, 15).toString().padStart(2, '0')}${ci.substring(0, 15)}62070503***6304`
         return p + calcularCRC16(p)
       }
 
@@ -2920,9 +2779,7 @@
       }
 
       async function fazerLogin() {
-        const n = document.getElementById('inputNome').value,
-          w = document.getElementById('inputWhatsapp').value,
-          s = document.getElementById('inputSenha').value
+        const n = document.getElementById('inputNome').value, w = document.getElementById('inputWhatsapp').value, s = document.getElementById('inputSenha').value
         if (!n || !w) return alert('Preencha nome e WhatsApp!')
         try {
           const r = await fetch(AUTH_URL, {
@@ -2934,8 +2791,7 @@
           const u = await r.json()
           localStorage.setItem('atelierUsuario', JSON.stringify(u))
           fecharModal('modalLogin')
-          if (u.role === 'ADMIN')
-            window.location.href = 'admin/t328cn74yt4302fty438n.html'
+          if (u.role === 'ADMIN') window.location.href = 'admin/t328cn74yt4302fty438n.html'
           else location.reload()
         } catch (e) {
           alert(e.message)
@@ -2947,9 +2803,7 @@
         if (u) atualizarPainel(JSON.parse(u))
       }
       function atualizarPainel(u) {
-        document.getElementById(
-          'infoUsuario'
-        ).innerHTML = `Olá, <b>${u.nome}</b> <br> <span style="font-size: 0.8em">${u.whatsapp}</span>`
+        document.getElementById('infoUsuario').innerHTML = `Olá, <b>${u.nome}</b> <br> <span style="font-size: 0.8em">${u.whatsapp}</span>`
         const b = document.getElementById('btnLogin')
         b.innerText = 'Sair'
         b.style.background = '#e74c3c'
@@ -2988,20 +2842,17 @@
             const p = await r.json()
             if (p.status !== 'CONCLUIDO') {
               localStorage.setItem('pedidoAtivoWhatsApp', u.whatsapp)
-              document.getElementById('btnAcompanharFloat').style.display =
-                'block'
+              document.getElementById('btnAcompanharFloat').style.display = 'block'
               pedidoAtivoExistente = p
             } else {
-              document.getElementById('btnAcompanharFloat').style.display =
-                'none'
+              document.getElementById('btnAcompanharFloat').style.display = 'none'
               localStorage.removeItem('pedidoAtivoWhatsApp')
               pedidoAtivoExistente = null
             }
           }
         } catch (e) {
           if (localStorage.getItem('pedidoAtivoWhatsApp'))
-            document.getElementById('btnAcompanharFloat').style.display =
-              'block'
+            document.getElementById('btnAcompanharFloat').style.display = 'block'
         }
       }
 
@@ -3018,26 +2869,16 @@
       }
 
       function atualizarVisualStatus(s, e) {
-        document
-          .querySelectorAll('.status-step')
-          .forEach(el => el.classList.remove('ativo'))
+        document.querySelectorAll('.status-step').forEach(el => el.classList.remove('ativo'))
         const t = document.getElementById('textoStatusFinal')
         const stepPendente = document.getElementById('step_PENDENTE')
 
         if (e.includes('RETIRADA')) {
-          t.innerHTML =
-            'Pronto para Retirada!<br><small style="font-weight:normal; color:#888;">Venha buscar</small>'
-          document
-            .getElementById('step_A_CAMINHO')
-            .querySelector('i').className =
-            'fa-solid fa-bag-shopping status-icone'
+          t.innerHTML = 'Pronto para Retirada!<br><small style="font-weight:normal; color:#888;">Venha buscar</small>'
+          document.getElementById('step_A_CAMINHO').querySelector('i').className = 'fa-solid fa-bag-shopping status-icone'
         } else {
-          t.innerHTML =
-            'Saiu para Entrega!<br><small style="font-weight:normal; color:#888;">O motoboy está a caminho</small>'
-          document
-            .getElementById('step_A_CAMINHO')
-            .querySelector('i').className =
-            'fa-solid fa-motorcycle status-icone'
+          t.innerHTML = 'Saiu para Entrega!<br><small style="font-weight:normal; color:#888;">O motoboy está a caminho</small>'
+          document.getElementById('step_A_CAMINHO').querySelector('i').className = 'fa-solid fa-motorcycle status-icone'
         }
 
         const btnPix = document.getElementById('btnReabrirPix')
@@ -3082,10 +2923,7 @@
         const p = localStorage.getItem('pixPayloadPendente')
         const v = localStorage.getItem('pixValorPendente')
         if (!p) return
-        document.getElementById('valorPixTela').innerText = `R$ ${v.replace(
-          '.',
-          ','
-        )}`
+        document.getElementById('valorPixTela').innerText = `R$ ${v.replace('.', ',')}`
         document.getElementById('textoCopiaECola').value = p
         document.getElementById('qrcodePix').innerHTML = ''
         new QRCode(document.getElementById('qrcodePix'), {
@@ -3117,26 +2955,17 @@
         verificarSeAdmin()
         verificarPedidoAtivo()
 
-        const botoesFormaPagamento = document.querySelectorAll(
-          'input[name="formaPagamentoEntrega"], input[name="formaPagamentoRetirada"]'
-        )
+        const botoesFormaPagamento = document.querySelectorAll('input[name="formaPagamentoEntrega"], input[name="formaPagamentoRetirada"]')
         botoesFormaPagamento.forEach(botao => {
           botao.addEventListener('change', atualizarExibicaoTotaisCarrinho)
         })
       })
 
-      const mp = new MercadoPago(
-        'APP_USR-15ce7e1c-f7a1-4a98-b439-9f4da6ded110',
-        { locale: 'pt-BR' }
-      )
+      const mp = new MercadoPago('APP_USR-15ce7e1c-f7a1-4a98-b439-9f4da6ded110', { locale: 'pt-BR' })
       const bricksBuilder = mp.bricks()
       let cardPaymentBrickController
 
-      async function abrirPagamentoCartao(
-        valorTotal,
-        idPedidoReal,
-        emailCliente
-      ) {
+      async function abrirPagamentoCartao(valorTotal, idPedidoReal, emailCliente) {
         abrirModal('modalPagamentoCartao')
 
         if (cardPaymentBrickController) {
@@ -3144,63 +2973,37 @@
         }
 
         const settings = {
-          initialization: {
-            amount: valorTotal,
-            payer: {
-              email: emailCliente
-            }
-          },
-          customization: {
-            visual: {
-              style: { theme: 'default' }
-            },
-            paymentMethods: {
-              maxInstallments: 6
-            }
-          },
+          initialization: { amount: valorTotal, payer: { email: emailCliente } },
+          customization: { visual: { style: { theme: 'default' } }, paymentMethods: { maxInstallments: 6 } },
           callbacks: {
-            onReady: () => {
-              console.log('Formulário de cartão pronto!')
-            },
+            onReady: () => { console.log('Formulário de cartão pronto!') },
             onSubmit: cardFormData => {
               return new Promise(async (resolve, reject) => {
                 try {
                   const pedidoDTO = {
                     id: idPedidoReal,
-                    total: cardFormData.transaction_amount,
+                    total: parseFloat(cardFormData.transaction_amount.toFixed(2)),
                     tokenCartao: cardFormData.token,
                     parcelas: cardFormData.installments,
                     metodoPagamento: cardFormData.payment_method_id
                   }
 
-                  const resCartao = await fetch(
-                    `https://ateliergourmet.duckdns.org/api/pagamentos/cartao`,
-                    {
+                  const resCartao = await fetch(`https://ateliergourmet.duckdns.org/api/pagamentos/cartao`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify(pedidoDTO)
-                    }
-                  )
+                  })
 
                   const respostaJava = await resCartao.json()
 
-                  if (
-                    resCartao.ok &&
-                    (respostaJava.status_pagamento === 'approved' ||
-                      respostaJava.status_pagamento === 'in_process')
-                  ) {
+                  if (resCartao.ok && (respostaJava.status_pagamento === 'approved' || respostaJava.status_pagamento === 'in_process')) {
                     localStorage.removeItem('cartaoPendenteData')
-                    
                     alert('🎉 Pagamento Aprovado com Sucesso!')
                     fecharModal('modalPagamentoCartao')
                     abrirModalAcompanhamento()
                     resolve()
                   } else {
-                    alert(
-                      '⚠️ O cartão foi recusado. Motivo: ' +
-                        (respostaJava.motivo_rejeicao ||
-                          respostaJava.erro_motivo)
-                    )
+                    alert('⚠️ O cartão foi recusado. Motivo: ' + (respostaJava.motivo_rejeicao || respostaJava.erro_motivo))
                     reject()
                   }
                 } catch (error) {
@@ -3209,17 +3012,11 @@
                 }
               })
             },
-            onError: error => {
-              console.error('Erro no Brick:', error)
-            }
+            onError: error => { console.error('Erro no Brick:', error) }
           }
         }
 
-        window.cardPaymentBrickController = await bricksBuilder.create(
-          'cardPayment',
-          'cardPaymentBrick_container',
-          settings
-        )
+        window.cardPaymentBrickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', settings)
       }
 
       let pollInterval = null
@@ -3229,19 +3026,12 @@
 
         pollInterval = setInterval(async () => {
           try {
-            const res = await fetch(
-              `${PEDIDOS_URL}/cliente/${uLogado.whatsapp}`
-            )
+            const res = await fetch(`${PEDIDOS_URL}/cliente/${uLogado.whatsapp}`)
             if (res.ok) {
               const p = await res.json()
-              if (
-                p.id === idPedidoReal &&
-                p.status !== 'AGUARDANDO_PAGAMENTO'
-              ) {
+              if (p.id === idPedidoReal && p.status !== 'AGUARDANDO_PAGAMENTO') {
                 clearInterval(pollInterval)
-                alert(
-                  '🎉 Pagamento Confirmado! O pedido acabou de apitar na cozinha.'
-                )
+                alert('🎉 Pagamento Confirmado! O pedido acabou de apitar na cozinha.')
                 fecharModal('modalPagamentoPix')
                 localStorage.removeItem('pixPayloadPendente')
                 localStorage.removeItem('pixValorPendente')
@@ -3251,6 +3041,9 @@
           } catch (e) {}
         }, 5000)
       }
+    </script>
+  </body>
+</html>
     </script>
   </body>
 </html>
