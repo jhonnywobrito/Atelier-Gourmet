@@ -11,9 +11,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel Admin - Atelier</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <style>
       :root {
         --marrom: #5d4037;
@@ -53,7 +59,6 @@
         color: #ddd;
       }
 
-      /* MODO MANUTENÇÃO ALERT */
       .manutencao-container {
         background: white;
         width: 90%;
@@ -64,12 +69,19 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         border-left: 5px solid #e74c3c;
       }
-      .manutencao-info h3 { margin: 0; color: var(--marrom); }
-      .manutencao-info p { margin: 5px 0 0 0; color: #666; font-size: 0.9em; }
-      
+      .manutencao-info h3 {
+        margin: 0;
+        color: var(--marrom);
+      }
+      .manutencao-info p {
+        margin: 5px 0 0 0;
+        color: #666;
+        font-size: 0.9em;
+      }
+
       .btn-toggle-manutencao {
         background: #e74c3c;
         color: white;
@@ -81,7 +93,9 @@
         transition: 0.2s;
         font-size: 1em;
       }
-      .btn-toggle-manutencao.ativo { background: #27ae60; }
+      .btn-toggle-manutencao.ativo {
+        background: #27ae60;
+      }
 
       /* GRID DE BOTÕES */
       .dashboard-container {
@@ -101,7 +115,7 @@
         text-align: center;
         text-decoration: none;
         color: var(--marrom);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s, box-shadow 0.2s;
         border: 2px solid transparent;
         display: flex;
@@ -109,10 +123,11 @@
         align-items: center;
         gap: 10px;
       }
-      
-      .btn-dash:hover, .btn-dash:active {
+
+      .btn-dash:hover,
+      .btn-dash:active {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         border-color: var(--rosa);
       }
 
@@ -136,21 +151,22 @@
         font-weight: bold;
         margin-top: 10px;
         margin-bottom: 40px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       }
 
       @media (min-width: 768px) {
         .dashboard-container {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          padding: 20px;
         }
-        .btn-dash { padding: 35px 20px; }
+        .btn-dash {
+          padding: 35px 20px;
+        }
       }
     </style>
   </head>
   <body>
-    
     <div class="admin-header">
       <h1>Painel de Controle</h1>
       <p>Gerencie sua loja e pedidos</p>
@@ -161,13 +177,16 @@
         <h3>Modo Manutenção</h3>
         <p id="txtManutencao">A loja está aberta para os clientes.</p>
       </div>
-      <button id="btnManutencao" class="btn-toggle-manutencao" onclick="toggleManutencao()">
+      <button
+        id="btnManutencao"
+        class="btn-toggle-manutencao"
+        onclick="toggleManutencao()"
+      >
         Carregando...
       </button>
     </div>
 
     <div class="dashboard-container">
-      
       <a href="pedidos.html" class="btn-dash">
         <i class="fa-solid fa-motorcycle"></i>
         <span>Pedidos</span>
@@ -197,63 +216,86 @@
         <i class="fa-solid fa-store"></i>
         <span>Configurações</span>
       </a>
-
     </div>
 
-    <a href="../index.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar para a Loja</a>
+    <a href="../index.html" class="btn-voltar"
+      ><i class="fa-solid fa-arrow-left"></i> Voltar para a Loja</a
+    >
 
     <script>
-      const BASE_URL = 'https://ateliergourmet.duckdns.org';
-      let isManutencao = false;
+      const BASE_URL = 'https://ateliergourmet.duckdns.org'
+      let isManutencao = false
 
       async function carregarStatus() {
         try {
-          const res = await fetch(`${BASE_URL}/usuarios/loja`);
-          const loja = await res.json();
-          isManutencao = loja.manutencao === true;
-          atualizarVisualBotao();
+          const res = await fetch(`${BASE_URL}/usuarios/loja`)
+          const loja = await res.json()
+          isManutencao = loja.manutencao === true
+          atualizarVisualBotao()
         } catch (e) {
-          console.error("Erro ao carregar configurações.");
+          console.error('Erro ao carregar configurações.')
         }
       }
 
       function atualizarVisualBotao() {
-        const btn = document.getElementById('btnManutencao');
-        const txt = document.getElementById('txtManutencao');
-        
+        const btn = document.getElementById('btnManutencao')
+        const txt = document.getElementById('txtManutencao')
+
         if (isManutencao) {
-          btn.innerText = "Reabrir Loja";
-          btn.className = "btn-toggle-manutencao ativo";
-          txt.innerText = "A loja está FECHADA. Clientes veem tela de manutenção.";
+          btn.innerText = 'Reabrir Loja'
+          btn.className = 'btn-toggle-manutencao ativo'
+          txt.innerText =
+            'A loja está FECHADA. Clientes veem tela de manutenção.'
         } else {
-          btn.innerText = "Ativar Manutenção";
-          btn.className = "btn-toggle-manutencao";
-          txt.innerText = "A loja está ABERTA e funcionando normalmente.";
+          btn.innerText = 'Ativar Manutenção'
+          btn.className = 'btn-toggle-manutencao'
+          txt.innerText = 'A loja está ABERTA e funcionando normalmente.'
         }
       }
 
       async function toggleManutencao() {
-        const u = JSON.parse(localStorage.getItem('atelierUsuario'));
-        const btn = document.getElementById('btnManutencao');
-        btn.innerText = "Aguarde...";
+        const u = JSON.parse(localStorage.getItem('atelierUsuario'))
+        const btn = document.getElementById('btnManutencao')
 
-        isManutencao = !isManutencao;
+        if (!u?.id || !u?.token) {
+          alert('Sessao invalida. Faca login novamente.')
+          return
+        }
+
+        const estadoAnterior = isManutencao
+        const novoEstado = !isManutencao
+
+        btn.disabled = true
+        btn.innerText = 'Aguarde...'
 
         try {
-          await fetch(`${BASE_URL}/usuarios/${u.id}/pagamentos`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${u.token}` },
-              body: JSON.stringify({ manutencao: isManutencao })
-          });
-          atualizarVisualBotao();
+          const res = await fetch(`${BASE_URL}/usuarios/${u.id}/pagamentos`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${u.token}`
+            },
+            body: JSON.stringify({ manutencao: novoEstado })
+          })
+
+          if (!res.ok) {
+            const msg = await res.text()
+            throw new Error(msg || `Erro HTTP ${res.status}`)
+          }
+
+          isManutencao = novoEstado
+          atualizarVisualBotao()
         } catch (e) {
-          alert("Erro de conexão.");
-          isManutencao = !isManutencao;
-          atualizarVisualBotao();
+          console.error('Erro ao atualizar manutencao:', e)
+          isManutencao = estadoAnterior
+          atualizarVisualBotao()
+          alert('Nao foi possivel atualizar o modo manutencao.')
+        } finally {
+          btn.disabled = false
         }
       }
 
-      carregarStatus();
+      carregarStatus()
     </script>
   </body>
 </html>
