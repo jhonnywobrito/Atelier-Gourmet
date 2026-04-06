@@ -53,7 +53,37 @@
         color: #ddd;
       }
 
-      /* GRID DE BOTÕES (O Dashboard) */
+      /* MODO MANUTENÇÃO ALERT */
+      .manutencao-container {
+        background: white;
+        width: 90%;
+        max-width: 800px;
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-left: 5px solid #e74c3c;
+      }
+      .manutencao-info h3 { margin: 0; color: var(--marrom); }
+      .manutencao-info p { margin: 5px 0 0 0; color: #666; font-size: 0.9em; }
+      
+      .btn-toggle-manutencao {
+        background: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 1em;
+      }
+      .btn-toggle-manutencao.ativo { background: #27ae60; }
+
+      /* GRID DE BOTÕES */
       .dashboard-container {
         width: 100%;
         max-width: 800px;
@@ -62,7 +92,6 @@
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 15px;
-        margin-top: 10px;
       }
 
       .btn-dash {
@@ -105,7 +134,8 @@
         padding: 15px 30px;
         border-radius: 30px;
         font-weight: bold;
-        margin-top: 30px;
+        margin-top: 10px;
+        margin-bottom: 40px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       }
 
@@ -113,7 +143,7 @@
         .dashboard-container {
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            padding: 40px 20px;
+            padding: 20px;
         }
         .btn-dash { padding: 35px 20px; }
       }
@@ -124,6 +154,16 @@
     <div class="admin-header">
       <h1>Painel de Controle</h1>
       <p>Gerencie sua loja e pedidos</p>
+    </div>
+
+    <div class="manutencao-container">
+      <div class="manutencao-info">
+        <h3>Modo Manutenção</h3>
+        <p id="txtManutencao">A loja está aberta para os clientes.</p>
+      </div>
+      <button id="btnManutencao" class="btn-toggle-manutencao" onclick="toggleManutencao()">
+        Carregando...
+      </button>
     </div>
 
     <div class="dashboard-container">
@@ -162,5 +202,58 @@
 
     <a href="../index.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar para a Loja</a>
 
+    <script>
+      const BASE_URL = 'https://ateliergourmet.duckdns.org';
+      let isManutencao = false;
+
+      async function carregarStatus() {
+        try {
+          const res = await fetch(`${BASE_URL}/usuarios/loja`);
+          const loja = await res.json();
+          isManutencao = loja.manutencao === true;
+          atualizarVisualBotao();
+        } catch (e) {
+          console.error("Erro ao carregar configurações.");
+        }
+      }
+
+      function atualizarVisualBotao() {
+        const btn = document.getElementById('btnManutencao');
+        const txt = document.getElementById('txtManutencao');
+        
+        if (isManutencao) {
+          btn.innerText = "Reabrir Loja";
+          btn.className = "btn-toggle-manutencao ativo";
+          txt.innerText = "A loja está FECHADA. Clientes veem tela de manutenção.";
+        } else {
+          btn.innerText = "Ativar Manutenção";
+          btn.className = "btn-toggle-manutencao";
+          txt.innerText = "A loja está ABERTA e funcionando normalmente.";
+        }
+      }
+
+      async function toggleManutencao() {
+        const u = JSON.parse(localStorage.getItem('atelierUsuario'));
+        const btn = document.getElementById('btnManutencao');
+        btn.innerText = "Aguarde...";
+
+        isManutencao = !isManutencao;
+
+        try {
+          await fetch(`${BASE_URL}/usuarios/${u.id}/pagamentos`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${u.token}` },
+              body: JSON.stringify({ manutencao: isManutencao })
+          });
+          atualizarVisualBotao();
+        } catch (e) {
+          alert("Erro de conexão.");
+          isManutencao = !isManutencao;
+          atualizarVisualBotao();
+        }
+      }
+
+      carregarStatus();
+    </script>
   </body>
 </html>
