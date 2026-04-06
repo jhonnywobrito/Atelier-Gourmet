@@ -384,11 +384,20 @@
         gruposOpcionais.forEach((grupo, gIndex) => {
           let htmlItens = ''
           grupo.itens.forEach((item, iIndex) => {
+            let isPausado = item.pausado === true;
+            let bgItem = isPausado ? "background-color: #f8d7da; opacity: 0.8;" : "";
+            let textRisk = isPausado ? "text-decoration: line-through; color: #721c24;" : "";
+            
+            let btnPausa = isPausado
+                ? `<button type="button" onclick="togglePausaItem(${gIndex}, ${iIndex})" class="btn-tabela btn-ativar" style="margin:0; padding: 8px 12px;" title="Ativar Item"><i class="fa-solid fa-play"></i></button>`
+                : `<button type="button" onclick="togglePausaItem(${gIndex}, ${iIndex})" class="btn-tabela btn-pausar" style="margin:0; padding: 8px 12px;" title="Pausar Item"><i class="fa-solid fa-pause"></i></button>`;
+
             htmlItens += `
-                      <div style="display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap;">
-                          <input type="text" placeholder="Nome do Item" value="${item.nome}" onchange="atualizarItem(${gIndex}, ${iIndex}, 'nome', this.value)" style="flex: 2; padding: 8px; min-width: 100px;">
-                          <input type="number" placeholder="R$ Extra" value="${item.preco}" step="0.01" onchange="atualizarItem(${gIndex}, ${iIndex}, 'preco', this.value)" style="flex: 1; padding: 8px; min-width: 80px;">
-                          <button type="button" onclick="removerItem(${gIndex}, ${iIndex})" class="btn-tabela btn-excluir" style="margin:0; padding: 8px 12px;"><i class="fa-solid fa-xmark"></i></button>
+                      <div style="display: flex; gap: 10px; margin-top: 8px; align-items: center; flex-wrap: wrap; padding: 5px; border-radius: 5px; ${bgItem}">
+                          <input type="text" placeholder="Nome do Item" value="${item.nome}" onchange="atualizarItem(${gIndex}, ${iIndex}, 'nome', this.value)" style="flex: 2; padding: 8px; min-width: 100px; ${textRisk}">
+                          <input type="number" placeholder="R$ Extra" value="${item.preco}" step="0.01" onchange="atualizarItem(${gIndex}, ${iIndex}, 'preco', this.value)" style="flex: 1; padding: 8px; min-width: 80px; ${textRisk}">
+                          ${btnPausa}
+                          <button type="button" onclick="removerItem(${gIndex}, ${iIndex})" class="btn-tabela btn-excluir" style="margin:0; padding: 8px 12px;" title="Excluir Item"><i class="fa-solid fa-xmark"></i></button>
                       </div>`
           })
 
@@ -442,10 +451,21 @@
       function atualizarGrupo(gIndex, campo, valor) {
         gruposOpcionais[gIndex][campo] = valor
       }
+      
       function adicionarItemAoGrupo(gIndex) {
-        gruposOpcionais[gIndex].itens.push({ nome: '', preco: 0 })
+        gruposOpcionais[gIndex].itens.push({ nome: '', preco: 0, pausado: false })
         renderizarOpcoes()
       }
+
+      function togglePausaItem(gIndex, iIndex) {
+        if (gruposOpcionais[gIndex].itens[iIndex].pausado) {
+            gruposOpcionais[gIndex].itens[iIndex].pausado = false;
+        } else {
+            gruposOpcionais[gIndex].itens[iIndex].pausado = true;
+        }
+        renderizarOpcoes();
+      }
+
       function removerItem(gIndex, iIndex) {
         gruposOpcionais[gIndex].itens.splice(iIndex, 1)
         renderizarOpcoes()
@@ -557,7 +577,6 @@
           opcionais: JSON.stringify(gruposOpcionais)
         }
 
-        // 🔥 A MÁGICA ESTÁ AQUI! Agora ele aceita o '0' tranquilamente.
         if (!produto.nome || isNaN(produto.valorUnitario) || produto.valorUnitario < 0 || !produto.categoria) {
           alert('Preencha o nome, um preço válido (pode ser 0) e a categoria!')
           return

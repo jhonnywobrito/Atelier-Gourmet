@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <script>
+      const usuarioLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
+      if (!usuarioLogado || usuarioLogado.role !== 'ADMIN') {
+        window.location.href = '../index.html'
+      }
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciar Pagamentos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      body {
+        font-family: 'Nunito', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0; padding: 20px;
+        color: #5d4037;
+        display: flex; flex-direction: column; align-items: center;
+      }
+      .container {
+        background: white; padding: 30px; border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 500px;
+      }
+      h2 { margin-top: 0; color: #ff85a1; text-align: center; }
+      
+      .toggle-row {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 0; border-bottom: 1px solid #eee;
+      }
+      .toggle-row:last-child { border-bottom: none; }
+      .toggle-info { display: flex; align-items: center; gap: 15px; font-size: 1.1em; font-weight: bold; }
+      .toggle-info i { font-size: 1.5em; width: 30px; text-align: center; }
+
+      .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+      .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+      input:checked + .slider { background-color: #27ae60; }
+      input:checked + .slider:before { transform: translateX(22px); }
+
+      .btn-salvar {
+        background: #27ae60; color: white; border: none; padding: 15px; width: 100%;
+        border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; margin-top: 20px;
+      }
+      .btn-voltar {
+        background: #95a5a6; color: white; text-decoration: none; padding: 12px; display: block;
+        border-radius: 8px; font-weight: bold; text-align: center; margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <h2><i class="fa-solid fa-cash-register"></i> Formas de Pagamento</h2>
+      <p style="text-align:center; color:#777; font-size:0.9em;">Ative ou desative as opções exibidas para o cliente.</p>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fa-brands fa-pix" style="color: #3498db;"></i>
+          <span>Pix Automático</span>
+        </div>
+        <label class="switch"><input type="checkbox" id="checkPix"><span class="slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fa-regular fa-credit-card" style="color: #e67e22;"></i>
+          <span>Cartão de Crédito</span>
+        </div>
+        <label class="switch"><input type="checkbox" id="checkCartao"><span class="slider"></span></label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <i class="fa-solid fa-hand-holding-dollar" style="color: #27ae60;"></i>
+          <span>Pagar na Retirada</span>
+        </div>
+        <label class="switch"><input type="checkbox" id="checkLocal"><span class="slider"></span></label>
+      </div>
+
+      <button class="btn-salvar" onclick="salvarPagamentos()">Salvar Alterações</button>
+      <a href="t328cn74yt4302fty438n.html" class="btn-voltar">Voltar ao Painel</a>
+    </div>
+
+    <script>
+      const BASE_URL = 'https://ateliergourmet.duckdns.org';
+
+      async function carregarPagamentos() {
+        try {
+          const res = await fetch(`${BASE_URL}/usuarios/loja`);
+          const loja = await res.json();
+          document.getElementById('checkPix').checked = loja.aceitaPix !== false;
+          document.getElementById('checkCartao').checked = loja.aceitaCartao !== false;
+          document.getElementById('checkLocal').checked = loja.aceitaLocal !== false;
+        } catch (e) {
+          console.error("Erro ao carregar configurações de pagamento.");
+        }
+      }
+
+      async function salvarPagamentos() {
+        const u = JSON.parse(localStorage.getItem('atelierUsuario'));
+        const payload = {
+            aceitaPix: document.getElementById('checkPix').checked,
+            aceitaCartao: document.getElementById('checkCartao').checked,
+            aceitaLocal: document.getElementById('checkLocal').checked
+        };
+
+        const btn = document.querySelector('.btn-salvar');
+        btn.innerText = "Salvando...";
+
+        try {
+          const res = await fetch(`${BASE_URL}/usuarios/${u.id}/pagamentos`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${u.token}` },
+              body: JSON.stringify(payload)
+          });
+          if(res.ok) {
+            alert("Configurações salvas com sucesso!");
+          } else {
+            alert("Erro ao salvar.");
+          }
+        } catch (e) {
+          alert("Erro de conexão.");
+        } finally {
+          btn.innerText = "Salvar Alterações";
+        }
+      }
+
+      carregarPagamentos();
+    </script>
+  </body>
+</html>

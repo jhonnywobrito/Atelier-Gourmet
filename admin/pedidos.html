@@ -10,7 +10,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Painel de Pedidos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
       body {
         font-family: 'Segoe UI', sans-serif;
@@ -21,85 +24,206 @@
       }
 
       /* Navegação Superior */
-      .top-nav { margin-bottom: 20px; }
-      .btn-voltar {
-        background: #5d4037; color: white; text-decoration: none; padding: 10px 15px;
-        border-radius: 8px; font-weight: bold; font-size: 0.9em; display: inline-flex;
-        align-items: center; gap: 8px; transition: 0.2s;
+      .top-nav {
+        margin-bottom: 20px;
       }
-      .btn-voltar:hover { background: #4a332c; }
+      .btn-voltar {
+        background: #5d4037;
+        color: white;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 0.9em;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+      }
+      .btn-voltar:hover {
+        background: #4a332c;
+      }
 
       .header-topo {
-        display: flex; justify-content: space-between; align-items: center;
-        margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
       }
       .btn-alertas {
-        background: #f39c12; color: white; border: none; padding: 10px 20px;
-        border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;
+        background: #f39c12;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       }
-      .btn-alertas:hover { transform: scale(1.05); }
-      .btn-alertas.ativo { background: #27ae60; }
+      .btn-alertas:hover {
+        transform: scale(1.05);
+      }
+      .btn-alertas.ativo {
+        background: #27ae60;
+      }
 
       .pedido-card {
-        background: white; padding: 20px; border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); margin-bottom: 20px; transition: 0.3s;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        transition: 0.3s;
       }
-      .novo-pedido { border-left: 6px solid #e74c3c; background-color: #fff9f9; }
-      .impresso { border-left: 6px solid #bdc3c7; opacity: 0.85; }
+      .novo-pedido {
+        border-left: 6px solid #e74c3c;
+        background-color: #fff9f9;
+      }
+      .impresso {
+        border-left: 6px solid #bdc3c7;
+        opacity: 0.85;
+      }
 
       .badge-novo {
-        background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px;
-        font-size: 0.8em; font-weight: bold; animation: piscar 1.5s infinite;
+        background: #e74c3c;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+        animation: piscar 1.5s infinite;
       }
-      @keyframes piscar { 50% { opacity: 0.5; } }
+      @keyframes piscar {
+        50% {
+          opacity: 0.5;
+        }
+      }
 
       .badge-status {
-        color: white; padding: 4px 10px; border-radius: 12px;
-        font-size: 0.8em; font-weight: bold;
+        color: white;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
       }
       .pedido-header {
-        display: flex; justify-content: space-between; align-items: center;
-        border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;
-        flex-wrap: wrap; gap: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 10px;
       }
-      .pedido-cliente { font-size: 1.2em; font-weight: bold; color: #5d4037; }
-      .pedido-end { color: #666; font-size: 0.9em; margin-bottom: 10px; }
-      .pedido-tempo { color: #8e44ad; font-size: 0.88em; font-weight: bold; margin-bottom: 10px; }
+      .pedido-cliente {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #5d4037;
+      }
+      .pedido-end {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+      .pedido-tempo {
+        color: #8e44ad;
+        font-size: 0.88em;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
       .pedido-itens {
-        white-space: pre-wrap; background: #f9f9f9; padding: 10px; border-radius: 5px;
-        font-family: monospace; border: 1px solid #eee;
+        white-space: pre-wrap;
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        border: 1px solid #eee;
       }
       .pedido-total {
-        font-size: 1.3em; font-weight: bold; margin-top: 10px; color: #27ae60; text-align: right;
+        font-size: 1.3em;
+        font-weight: bold;
+        margin-top: 10px;
+        color: #27ae60;
+        text-align: right;
       }
 
-      .botoes-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-      .btn-acao {
-        color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px;
-        font-weight: bold; border: none; cursor: pointer; transition: 0.2s;
-        font-size: 0.9em; flex: 1; text-align: center; min-width: 120px;
+      .botoes-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 15px;
       }
-      .btn-acao:hover { transform: scale(1.03); opacity: 0.9; }
-      .btn-preparar { background: #f39c12; }
-      .btn-pronto { background: #27ae60; }
-      .btn-entrega { background: #3498db; }
-      .btn-concluir { background: #8e44ad; }
-      .btn-imprimir { background: #7f8c8d; }
-      .btn-excluir { background: #e74c3c; flex: 0 1 auto; min-width: auto; }
+      .btn-acao {
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 0.9em;
+        flex: 1;
+        text-align: center;
+        min-width: 120px;
+      }
+      .btn-acao:hover {
+        transform: scale(1.03);
+        opacity: 0.9;
+      }
+      .btn-preparar {
+        background: #f39c12;
+      }
+      .btn-pronto {
+        background: #27ae60;
+      }
+      .btn-entrega {
+        background: #3498db;
+      }
+      .btn-concluir {
+        background: #8e44ad;
+      }
+      .btn-imprimir {
+        background: #7f8c8d;
+      }
+      .btn-excluir {
+        background: #e74c3c;
+        flex: 0 1 auto;
+        min-width: auto;
+      }
     </style>
   </head>
   <body>
     <div class="top-nav">
-      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+      <a href="t328cn74yt4302fty438n.html" class="btn-voltar"
+        ><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a
+      >
     </div>
 
     <div class="header-topo">
       <h2 style="color: #5d4037; margin: 0">🧾 Painel de Pedidos</h2>
       <div style="display: flex; gap: 10px; flex-wrap: wrap">
-        <button class="btn-acao" style="background: #27ae60; flex: 0 1 auto" onclick="exportarPedidosCSV()">📊 Exportar Excel</button>
-        <button class="btn-acao" style="background: #c0392b; flex: 0 1 auto" onclick="apagarTodosPedidos()">🗑️ Apagar Todos</button>
-        <button id="btnAlertas" class="btn-alertas" onclick="ativarAlertas()">🔕 Ativar Alertas</button>
+        <button
+          class="btn-acao"
+          style="background: #27ae60; flex: 0 1 auto"
+          onclick="exportarPedidosCSV()"
+        >
+          📊 Exportar Excel
+        </button>
+        <button
+          class="btn-acao"
+          style="background: #c0392b; flex: 0 1 auto"
+          onclick="apagarTodosPedidos()"
+        >
+          🗑️ Apagar Todos
+        </button>
+        <button id="btnAlertas" class="btn-alertas" onclick="ativarAlertas()">
+          🔕 Ativar Alertas
+        </button>
       </div>
     </div>
 
@@ -110,17 +234,21 @@
       const API_URL = `${BASE_URL}/pedidos`
 
       let alertasAtivos = false
-      let idsConhecidosPendentes = new Set() 
+      let idsConhecidosPendentes = new Set()
       let primeiraCarga = true
       let todosPedidosGlobal = []
       let timerTempoDecorrido = null
-      let adminContatoGlobal = '' 
-      const somNovoPedido = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg')
+      let adminContatoGlobal = ''
+      const somNovoPedido = new Audio(
+        'https://actions.google.com/sounds/v1/alarms/beep_short.ogg'
+      )
 
       fetch(`${BASE_URL}/usuarios/loja`)
         .then(res => res.json())
-        .then(data => { adminContatoGlobal = data.whatsapp || "Não cadastrado"; })
-        .catch(err => console.log("Erro ao buscar whatsapp"));
+        .then(data => {
+          adminContatoGlobal = data.whatsapp || 'Não cadastrado'
+        })
+        .catch(err => console.log('Erro ao buscar whatsapp'))
 
       // FUNÇÃO INTELIGENTE DE IMPRESSÃO
       // ==========================================
@@ -136,11 +264,51 @@
         const nomeSeguro = p.clienteNome || "Cliente Não Identificado";
         const zapSeguro = p.clienteWhatsapp || "Não informado";
 
+        // Formatação da Data do Pedido
+        let dataFormatada = "Data não registrada";
+        const timestamp = obterTimestampChegada(p);
+        if (timestamp) {
+            const dataObj = new Date(timestamp);
+            const dia = dataObj.getDate().toString().padStart(2, '0');
+            const mes = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+            const ano = dataObj.getFullYear();
+            const hora = dataObj.getHours().toString().padStart(2, '0');
+            const min = dataObj.getMinutes().toString().padStart(2, '0');
+            dataFormatada = `${dia}/${mes}/${ano} às ${hora}:${min}`;
+        }
+
+        // Descoberta da Forma de Pagamento baseada no Resumo
+        let formaPagamento = "Pagamento na Retirada/Entrega";
+        const resumo = itensSeguros.toLowerCase();
+        if (p.status === "AGUARDANDO_PAGAMENTO") {
+             formaPagamento = "⚠️ PENDENTE (Pix ou Cartão)";
+        } else if (resumo.includes("taxa cartão de crédito")) {
+            formaPagamento = "💳 Cartão de Crédito (Pago)";
+        } else if (resumo.includes("isenta") && p.endereco.includes("CEP")) {
+            // Se tem taxa isenta e é entrega, possivelmente foi um add-on. O original dita a regra, mas consideramos pago online.
+            formaPagamento = "Pix ou Cartão (Adicional)";
+        } else if (p.status !== "PENDENTE" && p.status !== "PREPARANDO" && p.status !== "PRONTO_RETIRADA" && p.status !== "SAIU_ENTREGA" && p.status !== "CONCLUIDO" && p.status !== "AGUARDANDO_PAGAMENTO") {
+            formaPagamento = "Verificar Status";
+        } else if (p.status === "PREPARANDO" || p.status === "PRONTO_RETIRADA" || p.status === "SAIU_ENTREGA" || p.status === "CONCLUIDO") {
+            // Se passou de PENDENTE (e não era Cartão), e estava aguardando, confirmou como PIX.
+             formaPagamento = "📱 Pix (Pago)";
+        } else if (p.status === "PENDENTE" && p.endereco === "RETIRADA NA LOJA") {
+             formaPagamento = "💵 Pagamento na Retirada";
+        }
+
+        // Se for uma impressão muito rápida logo que o pedido cai (Status Pendente), 
+        // e não for retirada nem cartão, assumimos Pix Pago (pois passou pela verificação).
+        if (p.status === "PENDENTE" && !resumo.includes("taxa cartão") && p.endereco !== "RETIRADA NA LOJA") {
+            formaPagamento = "📱 Pix (Pago)";
+        }
+
+
         if (isMobile) {
           let recibo = "[C]<b>BIA OLIVEIRA</b>\\n";
           recibo += "[C]<b>ATELIER GOURMET</b>\\n";
           recibo += `[C]WhatsApp: ${lojaTel}\\n`;
           recibo += `[C]<b>PEDIDO #${p.id}</b>\\n`;
+          recibo += `[C]${dataFormatada}\\n`;
           recibo += "[C]--------------------------\\n"; 
           recibo += `[L]<b>Cliente:</b> ${nomeSeguro}\\n`;
           recibo += `[L]<b>WhatsApp:</b> ${zapSeguro}\\n`;
@@ -148,6 +316,7 @@
           recibo += "[C]--------------------------\\n";
           recibo += `[L]${itensSeguros.trim()}\\n`;
           recibo += "[C]--------------------------\\n";
+          recibo += `[R]<b>Pgto:</b> ${formaPagamento}\\n`;
           recibo += `[R]<b>TOTAL: R$ ${totalSeguro.toFixed(2).replace('.', ',')}</b>\\n`;
           recibo += "[L]\\n[L]\\n[L]\\n"; 
 
@@ -177,7 +346,8 @@
                   }
                   h3 { margin: 0; text-align: center; font-size: 12px; }
                   .centro { text-align: center; }
-                  .linha { border-top: 1px solid #000; margin: 6px 0; }
+                  .linha { border-top: 1px dashed #000; margin: 6px 0; }
+                  .linha-solida { border-top: 1px solid #000; margin: 6px 0; }
                   .bold { font-weight: bold; }
                   .direita { text-align: right; font-size: 9px; }
                   p { margin: 2px 0; }
@@ -185,26 +355,29 @@
                       white-space: pre-wrap; 
                       font-size: 9px; 
                       word-break: break-word;
+                      line-height: 1.4;
                   }
               </style>
               <h3>BIA OLIVEIRA</h3>
               <h3>ATELIER GOURMET</h3>
-              <p class="centro" style="font-size: 9px; margin-bottom: 5px;">WhatsApp: ${lojaTel}</p>
-              <p class="centro bold">PEDIDO #${p.id}</p>
+              <p class="centro" style="font-size: 9px; margin-bottom: 2px;">WhatsApp: ${lojaTel}</p>
+              <p class="centro bold" style="font-size: 11px;">PEDIDO #${p.id}</p>
+              <p class="centro" style="font-size: 8px;">${dataFormatada}</p>
               
-              <div class="linha"></div>
+              <div class="linha-solida"></div>
               
               <p><span class="bold">Cliente:</span> ${nomeSeguro}</p>
               <p><span class="bold">WhatsApp:</span> ${zapSeguro}</p>
               <p><span class="bold">End.:</span> ${enderecoSeguro}</p>
               
-              <div class="linha"></div>
+              <div class="linha-solida"></div>
               
               <div class="resumo-itens">${itensSeguros.trim()}</div>
               
-              <div class="linha"></div>
+              <div class="linha-solida"></div>
               
-              <p class="direita bold">TOTAL: R$ ${totalSeguro.toFixed(2).replace('.', ',')}</p>
+              <p class="direita"><span class="bold">Pgto:</span> ${formaPagamento}</p>
+              <p class="direita bold" style="font-size: 11px; margin-top: 4px;">TOTAL: R$ ${totalSeguro.toFixed(2).replace('.', ',')}</p>
               
               <br><br><br>
           `;
@@ -331,7 +504,10 @@
             primeiraCarga = false
           } else {
             pedidos.forEach(p => {
-              if (p.status !== 'AGUARDANDO_PAGAMENTO' && !idsConhecidosPendentes.has(p.id)) {
+              if (
+                p.status !== 'AGUARDANDO_PAGAMENTO' &&
+                !idsConhecidosPendentes.has(p.id)
+              ) {
                 tocouAlarme = true
                 idsConhecidosPendentes.add(p.id)
               }
@@ -349,39 +525,47 @@
           ;[...pedidos].reverse().forEach(p => {
             const timestampChegada = obterTimestampChegada(p)
             const tempoDecorrido = formatarTempoDecorrido(timestampChegada)
-            
+
             let status = p.status || 'PENDENTE'
-            let classeCard = 'impresso', badge = '', botoes = ''
+            let classeCard = 'impresso',
+              badge = '',
+              botoes = ''
 
             const enderecoSeguro = p.endereco || ''
             const itensSeguros = p.itensResumo || ''
             const totalSeguro = p.total || 0
-            const clienteNomeSeguro = p.clienteNome || 'Cliente Não Identificado'
+            const clienteNomeSeguro =
+              p.clienteNome || 'Cliente Não Identificado'
             const clienteZapSeguro = p.clienteWhatsapp || ''
 
             if (status === 'AGUARDANDO_PAGAMENTO') {
               classeCard = 'novo-pedido'
-              badge = '<span class="badge-status" style="background:#e67e22">⏳ AGUARDANDO PAGAMENTO</span>'
+              badge =
+                '<span class="badge-status" style="background:#e67e22">⏳ AGUARDANDO PAGAMENTO</span>'
               botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PENDENTE')">💰 Aprovar manualmente</button>`
             } else if (status === 'PENDENTE') {
               classeCard = 'novo-pedido'
               badge = '<span class="badge-novo">🔴 NOVO PEDIDO</span>'
               botoes += `<button class="btn-acao btn-preparar" onclick="atualizarStatus(${p.id}, 'PREPARANDO')">👨‍🍳 Iniciar Preparo</button>`
             } else if (status === 'PREPARANDO') {
-              badge = '<span class="badge-status" style="background:#f39c12">🟡 PREPARANDO</span>'
+              badge =
+                '<span class="badge-status" style="background:#f39c12">🟡 PREPARANDO</span>'
               if (enderecoSeguro.includes('RETIRADA')) {
                 botoes += `<button class="btn-acao btn-pronto" onclick="atualizarStatus(${p.id}, 'PRONTO_RETIRADA')">🛍️ Pronto p/ Coleta</button>`
               } else {
                 botoes += `<button class="btn-acao btn-entrega" onclick="atualizarStatus(${p.id}, 'SAIU_ENTREGA')">🛵 Saiu p/ Entrega</button>`
               }
             } else if (status === 'PRONTO_RETIRADA') {
-              badge = '<span class="badge-status" style="background:#27ae60">🟢 AGUARDANDO RETIRADA</span>'
+              badge =
+                '<span class="badge-status" style="background:#27ae60">🟢 AGUARDANDO RETIRADA</span>'
               botoes += `<button class="btn-acao btn-concluir" onclick="atualizarStatus(${p.id}, 'CONCLUIDO')">✅ Concluir Pedido</button>`
             } else if (status === 'SAIU_ENTREGA') {
-              badge = '<span class="badge-status" style="background:#3498db">🔵 SAIU P/ ENTREGA</span>'
+              badge =
+                '<span class="badge-status" style="background:#3498db">🔵 SAIU P/ ENTREGA</span>'
               botoes += `<button class="btn-acao btn-concluir" onclick="atualizarStatus(${p.id}, 'CONCLUIDO')">✅ Concluir Pedido</button>`
             } else if (status === 'CONCLUIDO') {
-              badge = '<span class="badge-status" style="background:#8e44ad">✅ CONCLUÍDO</span>'
+              badge =
+                '<span class="badge-status" style="background:#8e44ad">✅ CONCLUÍDO</span>'
             }
 
             botoes += `<button class="btn-acao btn-imprimir" onclick="imprimirPedido(${p.id})">🖨️ Imprimir</button>`
@@ -391,12 +575,18 @@
                 <div class="pedido-card ${classeCard}">
                     <div class="pedido-header">
                         <span class="pedido-cliente">👤 ${clienteNomeSeguro} (${clienteZapSeguro})</span>
-                        <div>${badge} <span style="background:#eee; padding:2px 8px; border-radius:10px; font-size:0.8em;">#${p.id}</span></div>
+                        <div>${badge} <span style="background:#eee; padding:2px 8px; border-radius:10px; font-size:0.8em;">#${
+              p.id
+            }</span></div>
                     </div>
                     <div class="pedido-end">📍 <b>Entregar em:</b> ${enderecoSeguro}</div>
-                    <div class="pedido-tempo" data-chegada="${timestampChegada || ''}">⏱️ ${tempoDecorrido}</div>
+                    <div class="pedido-tempo" data-chegada="${
+                      timestampChegada || ''
+                    }">⏱️ ${tempoDecorrido}</div>
                     <div class="pedido-itens">${itensSeguros}</div>
-                    <div class="pedido-total">R$ ${totalSeguro.toFixed(2).replace('.', ',')}</div>
+                    <div class="pedido-total">R$ ${totalSeguro
+                      .toFixed(2)
+                      .replace('.', ',')}</div>
                     <div class="botoes-container">${botoes}</div>
                 </div>
             `
@@ -410,13 +600,16 @@
       }
 
       async function atualizarStatus(id, novoStatus) {
-        idsConhecidosPendentes.add(id) 
+        idsConhecidosPendentes.add(id)
 
         const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
         try {
           const res = await fetch(`${API_URL}/${id}/status`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${uLogado.token}` },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${uLogado.token}`
+            },
             body: JSON.stringify({ status: novoStatus })
           })
           if (res.ok) carregarPedidos()
@@ -442,17 +635,24 @@
       }
 
       async function apagarTodosPedidos() {
-        if (todosPedidosGlobal.length === 0) { alert('Não há pedidos para apagar.'); return; }
-        const confirmacao = confirm('⚠️ ATENÇÃO: Tem certeza absoluta que deseja apagar TODOS os pedidos do sistema? Esta ação NÃO PODE ser desfeita.')
+        if (todosPedidosGlobal.length === 0) {
+          alert('Não há pedidos para apagar.')
+          return
+        }
+        const confirmacao = confirm(
+          '⚠️ ATENÇÃO: Tem certeza absoluta que deseja apagar TODOS os pedidos do sistema? Esta ação NÃO PODE ser desfeita.'
+        )
         if (!confirmacao) return
 
         const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'))
-        document.getElementById('listaPedidos').innerHTML = '<p>Apagando pedidos, por favor aguarde...</p>'
+        document.getElementById('listaPedidos').innerHTML =
+          '<p>Apagando pedidos, por favor aguarde...</p>'
 
         try {
           for (let pedido of todosPedidosGlobal) {
             await fetch(`${API_URL}/${pedido.id}`, {
-              method: 'DELETE', headers: { Authorization: `Bearer ${uLogado.token}` }
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${uLogado.token}` }
             })
           }
           alert('Todos os pedidos foram apagados com sucesso.')
@@ -464,22 +664,32 @@
       }
 
       function exportarPedidosCSV() {
-        if (todosPedidosGlobal.length === 0) { alert('Não há pedidos para exportar.'); return; }
+        if (todosPedidosGlobal.length === 0) {
+          alert('Não há pedidos para exportar.')
+          return
+        }
         let csvContent = '\uFEFF'
-        
-        csvContent += 'ID;Cliente;WhatsApp;Status;Total_Vendido;Endereco;Itens_Resumo\n'
+
+        csvContent +=
+          'ID;Cliente;WhatsApp;Status;Total_Vendido;Endereco;Itens_Resumo\n'
 
         todosPedidosGlobal.forEach(p => {
           const limparTexto = texto => {
             if (!texto) return '""'
-            return `"${String(texto).replace(/"/g, '""').replace(/\n/g, ' - ')}"`
+            return `"${String(texto)
+              .replace(/"/g, '""')
+              .replace(/\n/g, ' - ')}"`
           }
-          const totalSeguro = p.total || 0;
+          const totalSeguro = p.total || 0
 
           const linha = [
-            p.id, limparTexto(p.clienteNome), limparTexto(p.clienteWhatsapp),
-            limparTexto(p.status || 'PENDENTE'), totalSeguro.toFixed(2).replace('.', ','),
-            limparTexto(p.endereco), limparTexto(p.itensResumo)
+            p.id,
+            limparTexto(p.clienteNome),
+            limparTexto(p.clienteWhatsapp),
+            limparTexto(p.status || 'PENDENTE'),
+            totalSeguro.toFixed(2).replace('.', ','),
+            limparTexto(p.endereco),
+            limparTexto(p.itensResumo)
           ].join(';')
           csvContent += linha + '\n'
         })
@@ -488,7 +698,10 @@
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.setAttribute('href', url)
-        link.setAttribute('download', `Pedidos_AtelierGourmet_${new Date().toISOString().split('T')[0]}.csv`)
+        link.setAttribute(
+          'download',
+          `Pedidos_AtelierGourmet_${new Date().toISOString().split('T')[0]}.csv`
+        )
         link.style.display = 'none'
         document.body.appendChild(link)
         link.click()

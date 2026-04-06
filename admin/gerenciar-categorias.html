@@ -20,88 +20,48 @@
         margin: 0;
       }
       
-      .top-nav {
-        margin-bottom: 20px;
-      }
+      .top-nav { margin-bottom: 20px; }
       .btn-voltar {
-        background: #5d4037;
-        color: white;
-        text-decoration: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 0.9em;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.2s;
+        background: #5d4037; color: white; text-decoration: none; padding: 10px 15px;
+        border-radius: 8px; font-weight: bold; font-size: 0.9em; display: inline-flex;
+        align-items: center; gap: 8px; transition: 0.2s;
       }
       .btn-voltar:hover { background: #4a332c; }
 
       .form-container {
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        border-top: 4px solid #3498db;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+        background: #fff; padding: 20px; border-radius: 10px;
+        border-top: 4px solid #3498db; margin-bottom: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; gap: 10px;
       }
       input {
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        flex: 1;
-        min-width: 200px;
-        font-size: 1em;
+        padding: 12px; border: 1px solid #ddd; border-radius: 5px;
+        flex: 1; min-width: 200px; font-size: 1em;
       }
       button {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: 0.2s;
-        font-size: 1em;
+        background: #3498db; color: white; border: none; padding: 12px 20px;
+        border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 1em;
       }
       button:hover { background: #2980b9; }
 
       .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        background: white;
-        border-radius: 10px;
+        width: 100%; overflow-x: auto; background: white; border-radius: 10px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 400px;
-      }
-      th, td {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-      }
-      th {
-        background: #2c3e50;
-        color: white;
-        font-weight: bold;
-      }
+      table { width: 100%; border-collapse: collapse; min-width: 600px; }
+      th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: left; vertical-align: middle; }
+      th { background: #2c3e50; color: white; font-weight: bold; }
+      
       .btn-tabela {
-        padding: 8px 12px;
-        border-radius: 5px;
-        font-size: 0.85em;
-        margin-right: 5px;
+        padding: 8px 12px; border-radius: 5px; font-size: 0.85em; margin-right: 5px;
+        color: white; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
       }
-      .btn-excluir {
-        background: #e74c3c;
-      }
+      .btn-ordem { background: #95a5a6; transition: 0.2s; }
+      .btn-ordem:hover:not(:disabled) { background: #7f8c8d; }
+      .btn-excluir { background: #e74c3c; }
       .btn-excluir:hover { background: #c0392b; }
+      .btn-editar { background: #f39c12; }
+      
+      .acoes-celula { display: flex; gap: 5px; }
     </style>
   </head>
   <body>
@@ -121,8 +81,9 @@
       <table>
         <thead>
           <tr>
-            <th>ID</th>
+            <th>Ordem</th>
             <th>Nome</th>
+            <th>Destaque</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -134,20 +95,71 @@
       const BASE_URL = `https://ateliergourmet.duckdns.org`;
       const API = `${BASE_URL}/categorias`;
 
+      let categoriasLocal = [];
+
       async function listar() {
         const res = await fetch(API);
         const dados = await res.json();
+        
+        categoriasLocal = dados.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+
         const body = document.getElementById('lista-categorias');
-        body.innerHTML = dados.map(c => `
+        body.innerHTML = categoriasLocal.map((c, index) => {
+          let isPrimeiro = index === 0;
+          let isUltimo = index === categoriasLocal.length - 1;
+          
+          let btnSobe = isPrimeiro ? `<button class="btn-tabela btn-ordem" style="opacity: 0.3;" disabled><i class="fa-solid fa-arrow-up"></i></button>` : `<button class="btn-tabela btn-ordem" onclick="moverOrdem(${index}, -1)"><i class="fa-solid fa-arrow-up"></i></button>`;
+          let btnDesce = isUltimo ? `<button class="btn-tabela btn-ordem" style="opacity: 0.3;" disabled><i class="fa-solid fa-arrow-down"></i></button>` : `<button class="btn-tabela btn-ordem" onclick="moverOrdem(${index}, 1)"><i class="fa-solid fa-arrow-down"></i></button>`;
+
+          let btnDestaque = c.destaque ? 
+              `<button class="btn-tabela" style="background:#f1c40f; color:#fff; min-width: 100px; justify-content: center;" onclick="toggleDestaque(${c.id}, false)"><i class="fa-solid fa-star"></i> Destaque</button>` :
+              `<button class="btn-tabela" style="background:#bdc3c7; color:#fff; min-width: 100px; justify-content: center;" onclick="toggleDestaque(${c.id}, true)"><i class="fa-regular fa-star"></i> Normal</button>`;
+
+          return `
             <tr>
-                <td>${c.id}</td>
-                <td><strong>${c.nome}</strong></td>
                 <td>
-                    <button class="btn-tabela" onclick="prepararEdicao(${c.id}, '${c.nome}')"><i class="fa-solid fa-pen"></i></button>
+                  <div style="display: flex; gap: 5px; align-items: center;">
+                    ${btnSobe}${btnDesce}
+                  </div>
+                </td>
+                <td><strong>${c.nome}</strong></td>
+                <td>${btnDestaque}</td>
+                <td class="acoes-celula">
+                    <button class="btn-tabela btn-editar" onclick="prepararEdicao(${c.id}, '${c.nome}')"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn-tabela btn-excluir" onclick="excluir(${c.id})"><i class="fa-solid fa-trash"></i></button>
                 </td>
             </tr>
-        `).join('');
+          `}).join('');
+      }
+
+      async function moverOrdem(index, direcao) {
+          const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
+          let novaLista = [...categoriasLocal];
+          
+          [novaLista[index], novaLista[index + direcao]] = [novaLista[index + direcao], novaLista[index]];
+
+          const promessas = novaLista.map((cat, newIndex) => {
+              return fetch(`${API}/${cat.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uLogado.token}` },
+                  body: JSON.stringify({ nome: cat.nome, ordem: newIndex, destaque: cat.destaque })
+              });
+          });
+
+          await Promise.all(promessas);
+          listar();
+      }
+
+      async function toggleDestaque(id, estadoAtual) {
+          const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
+          const cat = categoriasLocal.find(c => c.id === id);
+          
+          await fetch(`${API}/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${uLogado.token}` },
+              body: JSON.stringify({ nome: cat.nome, ordem: cat.ordem, destaque: estadoAtual })
+          });
+          listar();
       }
 
       function prepararEdicao(id, nome) {
@@ -166,13 +178,17 @@
         const url = id ? `${API}/${id}` : API;
         const uLogado = JSON.parse(localStorage.getItem('atelierUsuario'));
 
+        const catExistente = id ? categoriasLocal.find(c => c.id == id) : null;
+        const ordem = catExistente ? catExistente.ordem : categoriasLocal.length;
+        const destaque = catExistente ? catExistente.destaque : false;
+
         await fetch(url, {
           method: metodo,
           headers: { 
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${uLogado.token}` 
           },
-          body: JSON.stringify({ nome })
+          body: JSON.stringify({ nome, ordem, destaque })
         });
 
         document.getElementById('catId').value = '';
